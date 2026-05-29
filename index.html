@@ -1,0 +1,3158 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cinnapom</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #12121a;
+        --surface2: #1a1a26;
+        --border: rgba(255, 255, 255, 0.07);
+        --accent: #e8c547;
+        --accent2: #c9a832;
+        --text: #f0ede8;
+        --muted: rgba(240, 237, 232, 0.45);
+        --red: #e85c4a;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+        opacity: 0.4;
+      }
+
+      #app {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* NAV */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 2.5rem;
+        border-bottom: 1px solid var(--border);
+        background: rgba(10, 10, 15, 0.85);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .logo {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.9rem;
+        letter-spacing: 0.04em;
+        color: var(--accent);
+        cursor: pointer;
+      }
+      .logo span {
+        color: var(--text);
+      }
+      .nav-right {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .btn {
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 0.5rem 1.25rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.18s;
+        border: none;
+        letter-spacing: 0.03em;
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #0a0a0f;
+        font-weight: 600;
+      }
+      .btn-primary:hover {
+        background: #f0d060;
+        transform: translateY(-1px);
+      }
+      .btn-sm {
+        padding: 0.35rem 0.9rem;
+        font-size: 0.78rem;
+      }
+
+      /* USER PILL */
+      .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.3rem 1rem 0.3rem 0.3rem;
+      }
+      .avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #0a0a0f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+      .user-name {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      /* PAGES */
+      .page {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+      .page.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* LOGIN PAGE — tela cheia sem nav */
+      #page-login {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+      }
+      #page-login.active {
+        display: flex;
+      }
+
+      .login-split {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+      }
+      .login-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        text-align: center;
+        position: relative;
+      }
+      .login-left::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 10%;
+        bottom: 10%;
+        width: 1px;
+        background: var(--border);
+      }
+      .login-brand {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3rem;
+        color: var(--accent);
+        letter-spacing: 0.04em;
+        margin-bottom: 0.25rem;
+      }
+      .login-brand span {
+        color: var(--text);
+      }
+      .login-eyebrow {
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 3rem;
+      }
+      .login-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 5rem;
+        line-height: 0.92;
+        color: var(--text);
+        margin-bottom: 1.5rem;
+      }
+      .login-title span {
+        color: var(--accent);
+      }
+      .login-desc {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.75;
+        max-width: 320px;
+      }
+
+      .login-right {
+        width: 460px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+      }
+      .login-right-inner {
+        width: 100%;
+        max-width: 340px;
+      }
+      .login-right h2 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+      }
+      .login-right p {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+
+      .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 0.9rem 2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+      }
+      .btn-google:hover {
+        background: var(--surface);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+      .google-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      .login-fine {
+        font-size: 0.72rem;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 1.5rem;
+        line-height: 1.6;
+      }
+
+      /* DISCOVER PAGE */
+      #page-discover {
+        padding: 2.5rem;
+      }
+      .discover-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+      }
+      .discover-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.5rem;
+        letter-spacing: 0.02em;
+      }
+      .discover-title span {
+        color: var(--accent);
+      }
+      .page-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .page-num {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      /* MOVIE GRID */
+      .movie-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1.25rem;
+      }
+      .movie-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
+      }
+      .movie-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(232, 197, 71, 0.3);
+      }
+      .movie-card:hover .card-overlay {
+        opacity: 1;
+      }
+      .poster-wrap {
+        position: relative;
+        aspect-ratio: 2/3;
+        background: var(--surface2);
+        overflow: hidden;
+      }
+      .poster-wrap img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .poster-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3rem;
+        color: rgba(255, 255, 255, 0.05);
+      }
+      .card-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(10, 10, 15, 0.95) 0%,
+          rgba(10, 10, 15, 0.3) 60%,
+          transparent 100%
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+        display: flex;
+        align-items: flex-end;
+        padding: 1rem;
+      }
+      .overlay-score {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .overlay-score span {
+        font-size: 0.85rem;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        margin-left: 3px;
+      }
+      .score-badge {
+        position: absolute;
+        top: 0.6rem;
+        right: 0.6rem;
+        background: rgba(10, 10, 15, 0.85);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 0.2rem 0.45rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .score-badge.good {
+        color: var(--accent);
+      }
+      .score-badge.bad {
+        color: var(--red);
+      }
+      .card-info {
+        padding: 0.75rem;
+      }
+      .card-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+        line-height: 1.3;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .card-year {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      /* SOCIAL HOVER ON MOVIE CARD */
+      .social-hover-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(10, 10, 15, 0.95);
+        padding: 1rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        display: flex;
+        flex-direction: column;
+        z-index: 10;
+        pointer-events: none;
+        overflow-y: auto;
+      }
+      .movie-card:hover .social-hover-overlay {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .sh-title {
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+      }
+      .sh-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.4rem;
+      }
+      .sh-item:last-child {
+        border-bottom: none;
+      }
+      .sh-name {
+        font-size: 0.82rem;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90px;
+      }
+      .sh-score {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.1rem;
+        color: var(--accent);
+      }
+
+      /* SOCIAL SECTION IN MOVIE DETAIL */
+      .social-ratings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+      .social-rating-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 1rem;
+      }
+      .sr-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+      .sr-user {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+      .sr-score {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.2rem;
+        color: var(--accent);
+      }
+      .sr-comment {
+        font-size: 0.85rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* SKELETON */
+      .skeleton {
+        background: var(--surface2);
+        border-radius: 4px;
+        animation: pulse 1.5s ease infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .skel-poster {
+        aspect-ratio: 2/3;
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+      }
+      .skel-line {
+        height: 12px;
+        margin: 8px;
+        border-radius: 3px;
+      }
+      .skel-line.short {
+        width: 50%;
+      }
+
+      /* LOADING */
+      .spinner {
+        width: 36px;
+        height: 36px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        margin: 4rem auto;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* TOAST */
+      .toast {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 999;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 0.75rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: var(--text);
+        transform: translateY(20px);
+        opacity: 0;
+        transition: all 0.25s;
+        pointer-events: none;
+      }
+      .toast.show {
+        transform: none;
+        opacity: 1;
+      }
+      .toast.error {
+        border-left-color: var(--red);
+      }
+
+      /* PROFILE PAGE */
+      #page-profile {
+        padding: 2.5rem;
+        max-width: 600px;
+      }
+      .profile-header {
+        margin-bottom: 2rem;
+      }
+      .profile-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #0a0a0f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      .profile-name {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+      }
+      .profile-email {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+      .profile-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+      .profile-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .profile-row:last-child {
+        border-bottom: none;
+      }
+      .profile-key {
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+      .profile-val {
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+
+      /* TABS */
+      .tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 2rem;
+      }
+      .tab-btn {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 0.75rem 1.25rem;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: all 0.15s;
+      }
+      .tab-btn.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+      }
+      .tab-btn:hover:not(.active) {
+        color: var(--text);
+      }
+
+      /* ERROR */
+      .error-msg {
+        color: var(--red);
+        font-size: 0.82rem;
+        margin-top: 0.5rem;
+      }
+
+      /* EMPTY */
+      .empty {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+      }
+
+      /* WATCHLIST PAGE */
+      #page-watchlist {
+        padding: 2.5rem;
+      }
+      .wl-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+      }
+      .wl-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.5rem;
+        letter-spacing: 0.02em;
+      }
+      .wl-title span {
+        color: var(--accent);
+      }
+
+      .wl-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+      }
+      .wl-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .wl-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(232, 197, 71, 0.3);
+      }
+      .wl-cover {
+        aspect-ratio: 16/9;
+        background: var(--surface2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        overflow: hidden;
+      }
+      .wl-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .wl-card-body {
+        padding: 0.9rem;
+      }
+      .wl-card-name {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .wl-card-meta {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .wl-card-actions {
+        display: flex;
+        gap: 0.4rem;
+        margin-top: 0.75rem;
+      }
+      .btn-icon {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: "DM Sans", sans-serif;
+      }
+      .btn-icon:hover {
+        color: var(--text);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .btn-icon.accent:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* CREATE WL FORM */
+      .wl-create-form {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: none;
+      }
+      .wl-create-form.open {
+        display: block;
+      }
+      .form-row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-end;
+      }
+      .form-group {
+        flex: 1;
+      }
+      .form-label {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 0.4rem;
+        display: block;
+      }
+      .form-input {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        padding: 0.6rem 0.9rem;
+        border-radius: 4px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .form-input:focus {
+        border-color: var(--accent);
+      }
+      .form-input::placeholder {
+        color: rgba(240, 237, 232, 0.25);
+      }
+
+      /* MODAL */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        background: rgba(10, 10, 15, 0.85);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .modal {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 2rem;
+        width: 90%;
+        max-width: 420px;
+        transform: translateY(16px);
+        transition: transform 0.2s;
+      }
+      .modal-overlay.open .modal {
+        transform: none;
+      }
+      .modal-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        margin-bottom: 1.25rem;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        margin-top: 1.25rem;
+      }
+
+      /* WL DETAIL */
+      .wl-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .wl-detail-cover {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .wl-detail-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .wl-detail-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+      }
+      .wl-detail-meta {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.2rem;
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.82rem;
+        cursor: pointer;
+        padding: 0;
+        margin-bottom: 1.5rem;
+        transition: color 0.15s;
+      }
+      .back-btn:hover {
+        color: var(--text);
+      }
+
+      /* MOVIE DETAIL PAGE */
+      #page-movie-detail {
+        padding: 0;
+      }
+      .movie-detail-backdrop {
+        position: relative;
+        height: 380px;
+        overflow: hidden;
+        background: var(--surface2);
+      }
+      .movie-detail-backdrop img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .backdrop-gradient {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(10, 10, 15, 0.2) 0%,
+          rgba(10, 10, 15, 0.98) 100%
+        );
+      }
+      .movie-detail-hero {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 2rem 2.5rem;
+        display: flex;
+        align-items: flex-end;
+        gap: 1.75rem;
+      }
+      .movie-detail-poster {
+        width: 110px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 2px solid var(--border);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      }
+      .movie-detail-poster img {
+        width: 100%;
+        display: block;
+      }
+      .movie-detail-poster-placeholder {
+        aspect-ratio: 2/3;
+        background: var(--surface2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+      .movie-detail-info {
+        flex: 1;
+      }
+      .movie-detail-title {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2.8rem;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+      }
+      .movie-detail-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 0.75rem;
+      }
+      .meta-tag {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 0.2rem 0.7rem;
+        font-size: 0.72rem;
+        color: var(--text);
+      }
+      .movie-detail-body {
+        padding: 2rem 2.5rem;
+        max-width: 900px;
+      }
+      .detail-section {
+        margin-bottom: 2rem;
+      }
+      .detail-section-title {
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+      }
+      .detail-overview {
+        font-size: 0.9rem;
+        line-height: 1.75;
+        color: var(--muted);
+      }
+      .detail-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+      }
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.9rem 1rem;
+      }
+      .stat-label {
+        font-size: 0.72rem;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+      .stat-value {
+        font-size: 1rem;
+        font-weight: 500;
+      }
+      .stat-value.accent {
+        color: var(--accent);
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+      }
+
+      /* SEARCH BAR */
+      .search-bar {
+        display: flex;
+        gap: 0.6rem;
+        margin-bottom: 1.5rem;
+      }
+      .search-input {
+        flex: 1;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.88rem;
+        padding: 0.65rem 1rem;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .search-input:focus {
+        border-color: var(--accent);
+      }
+      .search-input::placeholder {
+        color: rgba(240, 237, 232, 0.25);
+      }
+      .search-clear {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.82rem;
+        padding: 0.65rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+        display: none;
+      }
+      .search-clear.visible {
+        display: block;
+      }
+      .search-clear:hover {
+        color: var(--text);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* ADD TO LIST MODAL */
+      .atl-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 260px;
+        overflow-y: auto;
+        margin-top: 0.5rem;
+      }
+      .atl-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .atl-item:hover {
+        border-color: var(--accent);
+      }
+      .atl-item-name {
+        font-size: 0.88rem;
+        font-weight: 500;
+      }
+      .atl-item-meta {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .atl-empty {
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-align: center;
+        padding: 1.5rem 0;
+      }
+
+      /* REMOVE BUTTON ON WATCHLIST MOVIES */
+      .btn-remove {
+        background: rgba(232, 92, 74, 0.12);
+        border: 1px solid rgba(232, 92, 74, 0.3);
+        color: var(--red);
+        font-size: 0.72rem;
+        padding: 0.25rem 0.55rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.15s;
+        font-family: "DM Sans", sans-serif;
+        position: absolute;
+        top: 0.6rem;
+        left: 0.6rem;
+        z-index: 2;
+      }
+      .btn-remove:hover {
+        background: rgba(232, 92, 74, 0.25);
+        border-color: var(--red);
+      }
+
+      /* RATING SECTION */
+      .rating-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      .rating-stars {
+        display: flex;
+        gap: 0.35rem;
+        margin-bottom: 1rem;
+      }
+      .star-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.6rem;
+        padding: 0;
+        line-height: 1;
+        transition: transform 0.1s;
+        color: var(--surface2);
+        filter: drop-shadow(0 0 0 transparent);
+      }
+      .star-btn.active {
+        color: var(--accent);
+      }
+      .star-btn:hover {
+        transform: scale(1.15);
+      }
+      .rating-comment {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.85rem;
+        padding: 0.65rem 0.9rem;
+        border-radius: 4px;
+        outline: none;
+        transition: border-color 0.15s;
+        resize: vertical;
+        min-height: 80px;
+        margin-bottom: 0.75rem;
+      }
+      .rating-comment:focus {
+        border-color: var(--accent);
+      }
+      .rating-comment::placeholder {
+        color: rgba(240, 237, 232, 0.25);
+      }
+      .rating-actions {
+        display: flex;
+        gap: 0.6rem;
+        align-items: center;
+      }
+      .rating-score-label {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 2rem;
+        color: var(--accent);
+        line-height: 1;
+        margin-right: 0.25rem;
+      }
+      .rating-existing {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .rating-existing-score {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.5rem;
+        color: var(--accent);
+      }
+      .rating-existing-comment {
+        font-size: 0.85rem;
+        color: var(--muted);
+        font-style: italic;
+        line-height: 1.5;
+      }
+      .rating-existing-meta {
+        font-size: 0.72rem;
+        color: rgba(240, 237, 232, 0.3);
+      }
+      .rating-edit-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      /* MEMBERS */
+      .member-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 280px;
+        overflow-y: auto;
+        margin-bottom: 1rem;
+      }
+      .member-item {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.7rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .member-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .member-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #0a0a0f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+      .member-name {
+        font-size: 0.88rem;
+        font-weight: 500;
+      }
+      .member-email {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .member-since {
+        font-size: 0.72rem;
+        color: rgba(240, 237, 232, 0.3);
+      }
+      .shared-badge {
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(232, 197, 71, 0.12);
+        border: 1px solid rgba(232, 197, 71, 0.25);
+        color: var(--accent);
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+      }
+      .owner-badge {
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+      }
+
+      /* EXTERNAL PROFILE & RATINGS */
+      #page-external-profile {
+        padding: 2.5rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .member-item.clickable {
+        cursor: pointer;
+        transition: border-color 0.15s;
+      }
+      .member-item.clickable:hover {
+        border-color: var(--accent);
+      }
+
+      .ext-rating-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition:
+          transform 0.2s,
+          border-color 0.2s;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .ext-rating-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(232, 197, 71, 0.3);
+      }
+      .ext-rating-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .ext-rating-movie {
+        font-weight: 500;
+        font-size: 1rem;
+        color: var(--text);
+      }
+      .ext-rating-score {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 1.4rem;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .ext-rating-comment {
+        font-size: 0.88rem;
+        color: var(--muted);
+        font-style: italic;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <nav id="main-nav">
+        <div class="logo" onclick="goHome()">Cinna<span>pom</span></div>
+        <div class="nav-right" id="nav-right"></div>
+      </nav>
+
+      <div id="page-login" class="page active">
+        <div class="login-split">
+          <div class="login-left">
+            <div class="login-brand">Cinna<span>pom</span></div>
+            <div class="login-eyebrow">Sua lista de filmes</div>
+            <div class="login-title">
+              Descubra.<br /><span>Avalie.</span><br />Organize.
+            </div>
+            <p class="login-desc">
+              Descubra filmes, monte suas watchlists e acompanhe tudo que você
+              já assistiu.
+            </p>
+          </div>
+          <div class="login-right">
+            <div class="login-right-inner">
+              <h2>Entrar na conta</h2>
+              <p>
+                Use sua conta Google para acessar o Cinnapom. É rápido e seguro.
+              </p>
+              <button class="btn-google" onclick="handleGoogleLogin()">
+                <svg
+                  class="google-icon"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    fill="#4285F4"
+                  />
+                  <path
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    fill="#34A853"
+                  />
+                  <path
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    fill="#FBBC05"
+                  />
+                  <path
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    fill="#EA4335"
+                  />
+                </svg>
+                Continuar com Google
+              </button>
+              <p class="login-fine">
+                Ao continuar, você concorda com os termos de uso da plataforma.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-discover" class="page">
+        <div class="discover-header">
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--accent);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                margin-bottom: 0.25rem;
+              "
+            >
+              Explorar
+            </div>
+            <div class="discover-title">Filmes em <span>Destaque</span></div>
+          </div>
+          <div class="page-controls">
+            <span class="page-num" id="page-indicator">Página 1</span>
+            <button
+              class="btn btn-ghost btn-sm"
+              id="btn-prev"
+              onclick="changePage(-1)"
+              disabled
+            >
+              ← Anterior
+            </button>
+            <button
+              class="btn btn-ghost btn-sm"
+              id="btn-next"
+              onclick="changePage(1)"
+            >
+              Próxima →
+            </button>
+          </div>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('discover', this)">
+            Descobrir
+          </button>
+          <button class="tab-btn" onclick="switchTab('watchlist', this)">
+            Minhas Listas
+          </button>
+          <button class="tab-btn" onclick="switchTab('shared', this)">
+            Compartilhadas
+          </button>
+          <button class="tab-btn" onclick="switchTab('profile', this)">
+            Meu Perfil
+          </button>
+        </div>
+        <div class="search-bar">
+          <input
+            class="search-input"
+            id="search-input"
+            placeholder="Buscar filmes por título..."
+            oninput="onSearchInput()"
+            onkeydown="if (event.key === 'Enter') doSearch();"
+          />
+          <button class="btn btn-primary btn-sm" onclick="doSearch()">
+            Buscar
+          </button>
+          <button
+            class="search-clear"
+            id="search-clear"
+            onclick="clearSearch()"
+          >
+            ✕ Limpar
+          </button>
+        </div>
+        <div id="movies-container"><div class="spinner"></div></div>
+      </div>
+
+      <div id="page-watchlist" class="page">
+        <div class="tabs">
+          <button class="tab-btn" onclick="switchTab('discover', this)">
+            Descobrir
+          </button>
+          <button class="tab-btn active" onclick="switchTab('watchlist', this)">
+            Minhas Listas
+          </button>
+          <button class="tab-btn" onclick="switchTab('shared', this)">
+            Compartilhadas
+          </button>
+          <button class="tab-btn" onclick="switchTab('profile', this)">
+            Meu Perfil
+          </button>
+        </div>
+        <div class="wl-header">
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--accent);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                margin-bottom: 0.25rem;
+              "
+            >
+              Organizar
+            </div>
+            <div class="wl-title">Minhas <span>Watchlists</span></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="toggleCreateForm()">
+            + Nova lista
+          </button>
+        </div>
+        <div class="wl-create-form" id="wl-create-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Nome da lista</label>
+              <input
+                class="form-input"
+                id="wl-name-input"
+                placeholder="Ex: Filmes pra assistir no fim de semana"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">URL da capa (opcional)</label>
+              <input
+                class="form-input"
+                id="wl-cover-input"
+                placeholder="https://..."
+              />
+            </div>
+            <button
+              class="btn btn-primary btn-sm"
+              style="white-space: nowrap"
+              onclick="createWatchlist()"
+            >
+              Criar
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleCreateForm()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+        <div id="wl-container"><div class="spinner"></div></div>
+      </div>
+
+      <div id="page-watchlist-detail" class="page" style="padding: 2.5rem">
+        <button class="back-btn" onclick="switchTab('watchlist', null)">
+          ← Voltar para listas
+        </button>
+        <div class="wl-detail-header">
+          <div class="wl-detail-cover" id="detail-cover">🎬</div>
+          <div style="flex: 1">
+            <div class="wl-detail-title" id="detail-title">—</div>
+            <div class="wl-detail-meta" id="detail-meta">—</div>
+            <div style="margin-top: 0.75rem">
+              <button
+                class="btn btn-ghost btn-sm"
+                id="detail-members-btn"
+                onclick="
+                  openMembersModal(
+                    currentWatchlistId,
+                    document.getElementById('detail-title').textContent,
+                    true,
+                  )
+                "
+              >
+                👥 Gerenciar membros
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="detail-movies-container"><div class="spinner"></div></div>
+      </div>
+
+      <div id="page-movie-detail" class="page">
+        <div id="movie-detail-content"></div>
+      </div>
+
+      <div id="page-profile" class="page">
+        <div class="tabs">
+          <button class="tab-btn" onclick="switchTab('discover', this)">
+            Descobrir
+          </button>
+          <button class="tab-btn" onclick="switchTab('watchlist', this)">
+            Minhas Listas
+          </button>
+          <button class="tab-btn" onclick="switchTab('shared', this)">
+            Compartilhadas
+          </button>
+          <button class="tab-btn active" onclick="switchTab('profile', this)">
+            Meu Perfil
+          </button>
+        </div>
+        <div class="profile-header">
+          <div class="profile-avatar" id="profile-avatar">?</div>
+          <div class="profile-name" id="profile-name">—</div>
+          <div class="profile-email" id="profile-email">—</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-row">
+            <span class="profile-key">ID</span
+            ><span class="profile-val" id="p-id">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-key">Nickname</span
+            ><span class="profile-val" id="p-nick">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-key">Watchlists</span
+            ><span class="profile-val" id="p-wl">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-key">Avaliações</span
+            ><span class="profile-val" id="p-ratings">—</span>
+          </div>
+          <div class="profile-row">
+            <span class="profile-key">Membro desde</span
+            ><span class="profile-val" id="p-since">—</span>
+          </div>
+        </div>
+        <div style="margin-top: 1.5rem">
+          <button class="btn btn-ghost btn-sm" onclick="logout()">
+            Sair da conta
+          </button>
+        </div>
+      </div>
+
+      <div id="page-shared" class="page" style="padding: 2.5rem">
+        <div class="tabs">
+          <button class="tab-btn" onclick="switchTab('discover', this)">
+            Descobrir
+          </button>
+          <button class="tab-btn" onclick="switchTab('watchlist', this)">
+            Minhas Listas
+          </button>
+          <button class="tab-btn active" onclick="switchTab('shared', this)">
+            Compartilhadas
+          </button>
+          <button class="tab-btn" onclick="switchTab('profile', this)">
+            Meu Perfil
+          </button>
+        </div>
+        <div class="wl-header">
+          <div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--accent);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                margin-bottom: 0.25rem;
+              "
+            >
+              Colaborar
+            </div>
+            <div class="wl-title">Listas <span>Compartilhadas</span></div>
+          </div>
+        </div>
+        <div id="shared-container"><div class="spinner"></div></div>
+      </div>
+
+      <div id="page-external-profile" class="page">
+        <button class="back-btn" onclick="goBackFromExternalProfile()">
+          ← Voltar
+        </button>
+        <div class="profile-header" style="margin-top: 1rem">
+          <div class="profile-avatar" id="ext-profile-avatar">?</div>
+          <div class="profile-name" id="ext-profile-name">—</div>
+          <div class="profile-email" id="ext-profile-email">—</div>
+        </div>
+        <div
+          style="
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1rem;
+          "
+        >
+          <div class="detail-section-title" style="font-size: 0.85rem">
+            Avaliações do Usuário
+          </div>
+        </div>
+        <div id="ext-profile-ratings">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="members-modal">
+      <div class="modal" style="max-width: 500px">
+        <div class="modal-title">Membros da Lista</div>
+        <p
+          style="font-size: 0.82rem; color: var(--muted); margin-bottom: 1rem"
+          id="members-list-name"
+        ></p>
+        <div class="member-list" id="members-list"></div>
+        <div
+          style="
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+          "
+          id="members-add-block"
+        >
+          <div
+            style="
+              font-size: 0.75rem;
+              color: var(--muted);
+              margin-bottom: 0.5rem;
+              letter-spacing: 0.06em;
+              text-transform: uppercase;
+            "
+          >
+            Adicionar membro
+          </div>
+          <div style="display: flex; gap: 0.6rem">
+            <input
+              class="form-input"
+              id="member-email-input"
+              placeholder="E-mail do usuário"
+              style="flex: 1"
+            />
+            <button class="btn btn-primary btn-sm" onclick="submitAddMember()">
+              Adicionar
+            </button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost btn-sm" onclick="closeMembersModal()">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="atl-modal">
+      <div class="modal">
+        <div class="modal-title">Adicionar à Watchlist</div>
+        <p
+          style="
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+          "
+          id="atl-movie-label"
+        >
+          Selecione uma lista:
+        </p>
+        <div class="atl-list" id="atl-list"></div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost btn-sm" onclick="closeAtlModal()">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="rename-modal">
+      <div class="modal">
+        <div class="modal-title">Renomear Lista</div>
+        <label class="form-label">Novo nome</label>
+        <input
+          class="form-input"
+          id="rename-input"
+          placeholder="Nome da watchlist"
+        />
+        <div class="modal-actions">
+          <button class="btn btn-ghost btn-sm" onclick="closeRenameModal()">
+            Cancelar
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="submitRename()">
+            Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="rating-modal">
+      <div class="modal" style="max-width: 480px">
+        <div class="modal-title" id="rating-modal-title">Avaliar Filme</div>
+        <p
+          style="
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 1.25rem;
+          "
+          id="rating-movie-label"
+        ></p>
+        <div id="rating-existing-block" style="display: none">
+          <div class="rating-existing">
+            <div class="rating-existing-score">
+              <span id="re-score">—</span
+              ><span
+                style="
+                  font-family: &quot;DM Sans&quot;;
+                  font-size: 0.8rem;
+                  color: var(--muted);
+                "
+                >/10</span
+              >
+              <span
+                style="
+                  font-size: 1rem;
+                  color: var(--accent);
+                  margin-left: 0.25rem;
+                "
+                >★</span
+              >
+            </div>
+            <div class="rating-existing-comment" id="re-comment"></div>
+            <div class="rating-existing-meta" id="re-meta"></div>
+            <div class="rating-edit-actions">
+              <button class="btn btn-ghost btn-sm" onclick="enterEditRating()">
+                ✏️ Editar
+              </button>
+              <button
+                class="btn btn-sm"
+                style="
+                  background: rgba(232, 92, 74, 0.15);
+                  border: 1px solid rgba(232, 92, 74, 0.3);
+                  color: var(--red);
+                "
+                onclick="deleteRating()"
+              >
+                🗑 Remover
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="rating-form-block">
+          <div class="rating-stars" id="rating-stars">
+            <span class="star-btn" data-v="1" onclick="setRatingStar(1)"
+              >★</span
+            >
+            <span class="star-btn" data-v="2" onclick="setRatingStar(2)"
+              >★</span
+            >
+            <span class="star-btn" data-v="3" onclick="setRatingStar(3)"
+              >★</span
+            >
+            <span class="star-btn" data-v="4" onclick="setRatingStar(4)"
+              >★</span
+            >
+            <span class="star-btn" data-v="5" onclick="setRatingStar(5)"
+              >★</span
+            >
+            <span class="star-btn" data-v="6" onclick="setRatingStar(6)"
+              >★</span
+            >
+            <span class="star-btn" data-v="7" onclick="setRatingStar(7)"
+              >★</span
+            >
+            <span class="star-btn" data-v="8" onclick="setRatingStar(8)"
+              >★</span
+            >
+            <span class="star-btn" data-v="9" onclick="setRatingStar(9)"
+              >★</span
+            >
+            <span class="star-btn" data-v="10" onclick="setRatingStar(10)"
+              >★</span
+            >
+          </div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              margin-bottom: 0.75rem;
+            "
+          >
+            <span class="rating-score-label" id="rating-score-label">—</span>
+            <span style="font-size: 0.8rem; color: var(--muted)">/10</span>
+          </div>
+          <textarea
+            class="rating-comment"
+            id="rating-comment"
+            placeholder="Escreva um comentário (obrigatório)..."
+          ></textarea>
+          <div class="rating-actions">
+            <button
+              class="btn btn-primary btn-sm"
+              id="rating-submit-btn"
+              onclick="submitRating()"
+            >
+              Salvar avaliação
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="closeRatingModal()">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      const BASE = "https://cinnapom.nikoondev.com/api";
+      let token = localStorage.getItem("cinnapom_token") || "";
+      let currentPage = 1;
+      let totalPages = 1;
+      let activeTab = "discover";
+      let movieDetailBackPage = "discover"; // para saber pra onde voltar
+      let currentWatchlistId = null;
+      let searchMode = false;
+      let searchQuery = "";
+      let currentUserId = null;
+      let currentWatchlistMembersRatings = {}; // Map: movieId -> [ { user, score, comment } ]
+
+      const ALL_PAGES = [
+        "login",
+        "discover",
+        "watchlist",
+        "watchlist-detail",
+        "movie-detail",
+        "profile",
+        "shared",
+        "external-profile",
+      ];
+
+      function toast(msg, type = "") {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.className = "toast show" + (type ? " " + type : "");
+        setTimeout(() => (t.className = "toast"), 3000);
+      }
+
+      async function api(path, opts = {}) {
+        const res = await fetch(BASE + path, {
+          ...opts,
+          headers: {
+            Authorization: "Bearer " + token,
+            "Content-Type": "application/json",
+            ...(opts.headers || {}),
+          },
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const ct = res.headers.get("Content-Type") || "";
+        if (res.status === 204 || !ct.includes("application/json")) return null;
+        return res.json();
+      }
+
+      function handleGoogleLogin() {
+        window.location.href = BASE + "/auth/google";
+      }
+
+      async function loadUser() {
+        const user = await api("/user/me");
+        currentUserId = user.id;
+        document.getElementById("nav-right").innerHTML = `
+    <div class="user-pill">
+      <div class="avatar">${user.name ? user.name[0].toUpperCase() : "?"}</div>
+      <span class="user-name">${user.name || user.email}</span>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="switchTab('profile', null)">Perfil</button>
+  `;
+        document.getElementById("profile-avatar").textContent = user.name
+          ? user.name[0].toUpperCase()
+          : "?";
+        document.getElementById("profile-name").textContent = user.name || "—";
+        document.getElementById("profile-email").textContent =
+          user.email || "—";
+        document.getElementById("p-id").textContent = user.id
+          ? user.id.slice(0, 8) + "..."
+          : "—";
+        document.getElementById("p-nick").textContent =
+          user.nickname || "não definido";
+        document.getElementById("p-wl").textContent = (
+          user.watchLists || []
+        ).length;
+        document.getElementById("p-ratings").textContent = (
+          user.ratings || []
+        ).length;
+        document.getElementById("p-since").textContent = user.createdAt
+          ? new Date(user.createdAt).toLocaleDateString("pt-BR")
+          : "—";
+      }
+
+      // ── PAGES ───────────────────────────────────────────────
+
+      function showPage(name) {
+        ALL_PAGES.forEach((p) => {
+          const el = document.getElementById("page-" + p);
+          if (!el) return;
+          el.classList.remove("active");
+          el.style.display = "none";
+        });
+        const target = document.getElementById("page-" + name);
+        if (target) {
+          target.style.display = name === "login" ? "flex" : "block";
+          target.classList.add("active");
+        }
+        // esconde nav na login
+        document.getElementById("main-nav").style.display =
+          name === "login" ? "none" : "flex";
+      }
+
+      function goHome() {
+        switchTab("discover", null);
+      }
+
+      function switchTab(tab, el) {
+        activeTab = tab;
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        showPage(tab);
+        document.querySelectorAll(".tab-btn").forEach((b) => {
+          if (
+            b.getAttribute("onclick") &&
+            b.getAttribute("onclick").includes("'" + tab + "'")
+          ) {
+            b.classList.add("active");
+          }
+        });
+        if (tab === "watchlist") loadWatchlists();
+        if (tab === "shared") loadSharedWatchlists();
+        if (tab === "discover") {
+          if (searchMode) clearSearch();
+          else if (
+            document.getElementById("movies-container").children.length <= 1
+          )
+            loadMovies();
+        }
+      }
+
+      // ── MOVIES ──────────────────────────────────────────────
+
+      async function loadMovies() {
+        const container = document.getElementById("movies-container");
+        container.innerHTML = renderSkeletons(10);
+        try {
+          const data = await api("/movie/discover?page=" + currentPage);
+          totalPages = data.totalPages || 1;
+          document.getElementById("page-indicator").textContent =
+            `Página ${data.page} de ${data.totalPages}`;
+          document.getElementById("btn-prev").disabled = currentPage <= 1;
+          document.getElementById("btn-next").disabled =
+            currentPage >= totalPages;
+          container.innerHTML = renderMovies(data.results || [], "discover");
+        } catch (e) {
+          container.innerHTML = `<div class="empty"><div class="empty-icon">🎬</div>Não foi possível carregar os filmes.<br>Verifique se o servidor está rodando.</div>`;
+          toast("Erro ao carregar filmes", "error");
+        }
+      }
+
+      function renderSkeletons(n) {
+        return (
+          '<div class="movie-grid">' +
+          Array(n)
+            .fill(0)
+            .map(
+              () => `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <div class="skeleton skel-poster"></div>
+      <div class="skel-line skeleton" style="margin:10px 8px 4px"></div>
+      <div class="skel-line short skeleton"></div>
+    </div>
+  `,
+            )
+            .join("") +
+          "</div>"
+        );
+      }
+
+      function renderMovies(movies, fromPage, watchListId) {
+        if (!movies.length)
+          return '<div class="empty"><div class="empty-icon">🎬</div>Nenhum filme encontrado.</div>';
+        const from = fromPage || activeTab;
+        return (
+          '<div class="movie-grid">' +
+          movies
+            .map((m) => {
+              const poster = m.posterPath
+                ? `https://image.tmdb.org/t/p/w342${m.posterPath}`
+                : null;
+              const year = m.releaseDate ? m.releaseDate.slice(0, 4) : "—";
+              const score = m.voteAverage ? m.voteAverage.toFixed(1) : "—";
+              const scoreClass = parseFloat(score) >= 7 ? "good" : "bad";
+              const removeBtn =
+                from === "watchlist-detail" && watchListId && m.watchListMovieId
+                  ? `<button class="btn-remove" onclick="event.stopPropagation(); removeMovieFromList('${m.watchListMovieId}', ${m.id}, '${watchListId}')">✕</button>`
+                  : "";
+
+              let socialHoverHTML = "";
+              if (
+                from === "watchlist-detail" &&
+                currentWatchlistMembersRatings[m.id] &&
+                currentWatchlistMembersRatings[m.id].length > 0
+              ) {
+                const socialRatings = currentWatchlistMembersRatings[m.id];
+                socialHoverHTML = `
+        <div class="social-hover-overlay">
+          <div class="sh-title">Avaliações do Grupo</div>
+          ${socialRatings
+            .map(
+              (sr) => `
+            <div class="sh-item">
+              <span class="sh-name" title="${sr.user.name || sr.user.email}">${sr.user.name || sr.user.email.split("@")[0]}</span>
+              <span class="sh-score">★ ${sr.score}</span>
+            </div>
+          `,
+            )
+            .join("")}
+        </div>
+      `;
+              }
+
+              return `
+      <div class="movie-card" onclick="openMovieDetail(${m.id}, '${from}')">
+        <div class="poster-wrap">
+          ${
+            poster
+              ? `<img src="${poster}" alt="${m.title.replace(/"/g, "&quot;")}" loading="lazy">`
+              : `<div class="poster-placeholder">🎬</div>`
+          }
+          <div class="card-overlay">
+            <div class="overlay-score">${score}<span>/10</span></div>
+          </div>
+          <div class="score-badge ${scoreClass}">★ ${score}</div>
+          ${removeBtn}
+          ${socialHoverHTML}
+        </div>
+        <div class="card-info">
+          <div class="card-title" title="${m.title.replace(/"/g, "&quot;")}">${m.title}</div>
+          <div class="card-year">${year}</div>
+        </div>
+      </div>
+    `;
+            })
+            .join("") +
+          "</div>"
+        );
+      }
+
+      function changePage(dir) {
+        const next = currentPage + dir;
+        if (next < 1 || next > totalPages) return;
+        currentPage = next;
+        if (searchMode && searchQuery) {
+          doSearch();
+        } else {
+          loadMovies();
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // ── MOVIE DETAIL ────────────────────────────────────────
+
+      async function openMovieDetail(movieId, fromPage) {
+        movieDetailBackPage = fromPage || "discover";
+        showPage("movie-detail");
+        document.getElementById("movie-detail-content").innerHTML =
+          '<div class="spinner" style="margin-top:6rem"></div>';
+
+        try {
+          const m = await api(`/movie/details/${movieId}`);
+          const backdrop = m.backdropPath
+            ? `https://image.tmdb.org/t/p/w1280${m.backdropPath}`
+            : null;
+          const poster = m.posterPath
+            ? `https://image.tmdb.org/t/p/w342${m.posterPath}`
+            : null;
+          const score = m.voteAverage ? m.voteAverage.toFixed(1) : "—";
+          const scoreClass = parseFloat(score) >= 7 ? "good" : "bad";
+          const genres = (m.genres || [])
+            .map((g) => `<span class="meta-tag">${g.name}</span>`)
+            .join("");
+          const runtime = m.runtime
+            ? `${Math.floor(m.runtime / 60)}h ${m.runtime % 60}m`
+            : "—";
+          const year = m.releaseDate ? m.releaseDate.slice(0, 4) : "—";
+
+          document.getElementById("movie-detail-content").innerHTML = `
+      <div class="movie-detail-backdrop">
+        ${
+          backdrop
+            ? `<img src="${backdrop}" alt="${m.title.replace(/"/g, "&quot;")}">`
+            : `<div style="width:100%;height:100%;background:var(--surface2)"></div>`
+        }
+        <div class="backdrop-gradient"></div>
+        <div class="movie-detail-hero">
+          <div class="movie-detail-poster">
+            ${
+              poster
+                ? `<img src="${poster}" alt="${m.title.replace(/"/g, "&quot;")}">`
+                : `<div class="movie-detail-poster-placeholder">🎬</div>`
+            }
+          </div>
+          <div class="movie-detail-info">
+            <button class="back-btn" onclick="goBackFromMovie()" style="margin-bottom:0.75rem">← Voltar</button>
+            <div class="movie-detail-title">${m.title}</div>
+            <div class="movie-detail-meta-row">
+              <span>${year}</span>
+              <span>${runtime}</span>
+              <span class="${scoreClass}" style="font-weight:600">★ ${score}/10</span>
+              <span>${m.voteCount ? m.voteCount.toLocaleString("pt-BR") + " votos" : ""}</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.4rem">${genres}</div>
+            <div style="margin-top:1rem;display:flex;gap:0.6rem;flex-wrap:wrap">
+              <button class="btn btn-primary btn-sm" onclick="openAtlModal(${m.id}, '${m.title.replace(/'/g, "\\'")}')">+ Adicionar à lista</button>
+              <button class="btn btn-ghost btn-sm" onclick="openRatingModal(${m.id}, '${m.title.replace(/'/g, "\\'")}')">★ Avaliar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="movie-detail-body">
+        ${m.tagline ? `<p style="font-style:italic;color:var(--muted);margin-bottom:1.5rem;font-size:0.95rem">"${m.tagline}"</p>` : ""}
+        ${
+          m.overview
+            ? `
+        <div class="detail-section">
+          <div class="detail-section-title">Sinopse</div>
+          <p class="detail-overview">${m.overview}</p>
+        </div>`
+            : ""
+        }
+        <div class="detail-section">
+          <div class="detail-section-title">Detalhes</div>
+          <div class="detail-stats">
+            <div class="stat-card"><div class="stat-label">Nota</div><div class="stat-value accent">${score}</div></div>
+            <div class="stat-card"><div class="stat-label">Ano</div><div class="stat-value">${year}</div></div>
+            <div class="stat-card"><div class="stat-label">Duração</div><div class="stat-value">${runtime}</div></div>
+            <div class="stat-card"><div class="stat-label">Idioma original</div><div class="stat-value">${(m.originalLanguage || "—").toUpperCase()}</div></div>
+            ${m.budget ? `<div class="stat-card"><div class="stat-label">Orçamento</div><div class="stat-value">$${(m.budget / 1e6).toFixed(0)}M</div></div>` : ""}
+            ${m.revenue ? `<div class="stat-card"><div class="stat-label">Bilheteria</div><div class="stat-value">$${(m.revenue / 1e6).toFixed(0)}M</div></div>` : ""}
+            <div class="stat-card"><div class="stat-label">Status</div><div class="stat-value">${m.status || "—"}</div></div>
+          </div>
+        </div>
+        ${
+          m.productionCompanies && m.productionCompanies.length
+            ? `
+        <div class="detail-section">
+          <div class="detail-section-title">Produtoras</div>
+          <p style="font-size:0.85rem;color:var(--muted)">${m.productionCompanies.map((c) => c.name).join(", ")}</p>
+        </div>`
+            : ""
+        }
+        <div class="detail-section" id="rating-section-container">
+          <div class="detail-section-title">Sua Avaliação</div>
+          <div id="rating-inline-block"><div class="spinner" style="margin:1rem auto;width:24px;height:24px;border-width:2px"></div></div>
+        </div>
+
+        ${
+          movieDetailBackPage === "watchlist-detail" &&
+          currentWatchlistMembersRatings[movieId] &&
+          currentWatchlistMembersRatings[movieId].length > 0
+            ? `
+        <div class="detail-section">
+          <div class="detail-section-title">Avaliações na Lista</div>
+          <div class="social-ratings-list">
+            ${currentWatchlistMembersRatings[movieId]
+              .map(
+                (sr) => `
+              <div class="social-rating-item">
+                <div class="sr-header">
+                  <div class="sr-user">
+                    <div class="avatar" style="width:24px;height:24px;font-size:0.6rem">${sr.user.name ? sr.user.name[0].toUpperCase() : "?"}</div>
+                    ${sr.user.name || sr.user.email}
+                  </div>
+                  <div class="sr-score">★ ${sr.score}</div>
+                </div>
+                ${sr.comment ? `<div class="sr-comment">"${sr.comment}"</div>` : ""}
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        </div>`
+            : ""
+        }
+      </div>
+    `;
+        } catch (e) {
+          document.getElementById("movie-detail-content").innerHTML =
+            '<div class="empty" style="margin-top:4rem"><div class="empty-icon">⚠️</div>Erro ao carregar detalhes do filme.</div>';
+          toast("Erro ao carregar filme.", "error");
+        }
+
+        // Load user's rating inline
+        loadInlineRating(movieId);
+      }
+
+      function goBackFromMovie() {
+        if (movieDetailBackPage === "watchlist-detail") {
+          showPage("watchlist-detail");
+        } else if (movieDetailBackPage === "external-profile") {
+          showPage("external-profile");
+        } else {
+          switchTab(movieDetailBackPage, null);
+        }
+      }
+
+      // ── WATCHLIST ───────────────────────────────────────────
+
+      let renameTargetId = null;
+
+      function toggleCreateForm() {
+        const f = document.getElementById("wl-create-form");
+        f.classList.toggle("open");
+        if (f.classList.contains("open"))
+          document.getElementById("wl-name-input").focus();
+      }
+
+      async function loadWatchlists() {
+        const c = document.getElementById("wl-container");
+        c.innerHTML = '<div class="spinner"></div>';
+        try {
+          const lists = await api("/watch-list/listAll");
+          if (!lists.length) {
+            c.innerHTML =
+              '<div class="empty"><div class="empty-icon">📋</div>Nenhuma watchlist ainda.<br>Crie sua primeira lista!</div>';
+            return;
+          }
+          c.innerHTML =
+            '<div class="wl-grid">' +
+            lists
+              .map(
+                (wl) => `
+      <div class="wl-card" onclick="openWatchlistDetail('${wl.id}')">
+        <div class="wl-cover">
+          ${wl.imageCoverUrl ? `<img src="${wl.imageCoverUrl}" alt="${wl.name.replace(/"/g, "&quot;")}">` : "🎬"}
+        </div>
+        <div class="wl-card-body">
+          <div class="wl-card-name" title="${wl.name.replace(/"/g, "&quot;")}">${wl.name}</div>
+          <div class="wl-card-meta">${new Date(wl.createdAt).toLocaleDateString("pt-BR")}</div>
+          <div class="wl-card-actions">
+            <button class="btn-icon accent" onclick="event.stopPropagation(); openRenameModal('${wl.id}', '${wl.name.replace(/'/g, "\\'")}')">✏️ Renomear</button>
+            <button class="btn-icon accent" onclick="event.stopPropagation(); openMembersModal('${wl.id}', '${wl.name.replace(/'/g, "\\'")}', true)">👥 Membros</button>
+          </div>
+        </div>
+      </div>
+    `,
+              )
+              .join("") +
+            "</div>";
+        } catch (e) {
+          c.innerHTML =
+            '<div class="empty"><div class="empty-icon">⚠️</div>Erro ao carregar watchlists.</div>';
+          toast("Erro ao carregar watchlists", "error");
+        }
+      }
+
+      async function openWatchlistDetail(id) {
+        currentWatchlistId = id;
+        currentWatchlistMembersRatings = {}; // Reseta o cache
+        showPage("watchlist-detail");
+        document.getElementById("detail-title").textContent = "...";
+        document.getElementById("detail-meta").textContent = "";
+        document.getElementById("detail-cover").innerHTML = "🎬";
+        document.getElementById("detail-movies-container").innerHTML =
+          '<div class="spinner"></div>';
+
+        try {
+          // Busca a lista e os membros em paralelo
+          const [wl, members] = await Promise.all([
+            api(`/watch-list/getById/${id}`),
+            api(`/watch-list-member/${id}/members`).catch(() => []),
+          ]);
+
+          document.getElementById("detail-title").textContent = wl.name;
+          document.getElementById("detail-meta").textContent =
+            `Criada em ${new Date(wl.createdAt).toLocaleDateString("pt-BR")} · ${(wl.movies || []).length} filme(s)`;
+
+          if (wl.imageCoverUrl) {
+            document.getElementById("detail-cover").innerHTML =
+              `<img src="${wl.imageCoverUrl}" alt="${wl.name.replace(/"/g, "&quot;")}">`;
+          }
+
+          // Isolar usuários únicos (Dono + Membros)
+          const uniqueUsersMap = new Map();
+          if (wl.user) uniqueUsersMap.set(wl.user.id, wl.user);
+          members.forEach((m) => uniqueUsersMap.set(m.user.id, m.user));
+          const users = Array.from(uniqueUsersMap.values());
+
+          // Buscar ratings de todos esses usuários simultaneamente
+          const ratingsPromises = users.map(async (u) => {
+            try {
+              const userRatings = await api(`/rating/user/${u.id}`);
+              return { user: u, ratings: userRatings || [] };
+            } catch (e) {
+              return { user: u, ratings: [] }; // Ignora se der 403 (Forbidden)
+            }
+          });
+
+          const usersWithRatings = await Promise.all(ratingsPromises);
+
+          // Indexar avaliações por movieId para acesso rápido (O(1))
+          usersWithRatings.forEach(({ user, ratings }) => {
+            ratings.forEach((r) => {
+              if (!currentWatchlistMembersRatings[r.tmdbMovieId]) {
+                currentWatchlistMembersRatings[r.tmdbMovieId] = [];
+              }
+              currentWatchlistMembersRatings[r.tmdbMovieId].push({
+                user: user,
+                score: r.score,
+                comment: r.comment,
+              });
+            });
+          });
+
+          const movies = (wl.movies || []).map((movie) => {
+            const wlm = (wl.watchListMovies || []).find(
+              (w) => w.tmdbMovieId === movie.id,
+            );
+            return { ...movie, watchListMovieId: wlm ? wlm.id : null };
+          });
+
+          if (!movies.length) {
+            document.getElementById("detail-movies-container").innerHTML =
+              '<div class="empty"><div class="empty-icon">🎬</div>Nenhum filme nessa lista ainda.</div>';
+            return;
+          }
+
+          document.getElementById("detail-movies-container").innerHTML =
+            renderMovies(movies, "watchlist-detail", id);
+        } catch (e) {
+          document.getElementById("detail-movies-container").innerHTML =
+            '<div class="empty"><div class="empty-icon">⚠️</div>Erro ao carregar a watchlist.</div>';
+          toast("Erro ao carregar watchlist.", "error");
+        }
+      }
+
+      async function createWatchlist() {
+        const name = document.getElementById("wl-name-input").value.trim();
+        const imageCoverUrl = document
+          .getElementById("wl-cover-input")
+          .value.trim();
+        if (!name) {
+          toast("Informe o nome da lista.", "error");
+          return;
+        }
+        try {
+          await api("/watch-list/create", {
+            method: "POST",
+            body: JSON.stringify({
+              name,
+              ...(imageCoverUrl && { imageCoverUrl }),
+            }),
+          });
+          document.getElementById("wl-name-input").value = "";
+          document.getElementById("wl-cover-input").value = "";
+          toggleCreateForm();
+          toast("Watchlist criada!");
+          loadWatchlists();
+        } catch (e) {
+          toast("Erro ao criar watchlist.", "error");
+        }
+      }
+
+      function openRenameModal(id, currentName) {
+        renameTargetId = id;
+        document.getElementById("rename-input").value = currentName;
+        document.getElementById("rename-modal").classList.add("open");
+        setTimeout(() => document.getElementById("rename-input").focus(), 100);
+      }
+
+      function closeRenameModal() {
+        document.getElementById("rename-modal").classList.remove("open");
+        renameTargetId = null;
+      }
+
+      async function submitRename() {
+        const name = document.getElementById("rename-input").value.trim();
+        if (!name) {
+          toast("Informe o novo nome.", "error");
+          return;
+        }
+        try {
+          await api(`/watch-list/updateName/${renameTargetId}`, {
+            method: "PATCH",
+            body: JSON.stringify({ name }),
+          });
+          closeRenameModal();
+          toast("Lista renomeada!");
+          loadWatchlists();
+        } catch (e) {
+          toast("Erro ao renomear.", "error");
+        }
+      }
+
+      document
+        .getElementById("rename-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeRenameModal();
+        });
+
+      // ── SEARCH ──────────────────────────────────────────────
+
+      function onSearchInput() {
+        const val = document.getElementById("search-input").value.trim();
+        document
+          .getElementById("search-clear")
+          .classList.toggle("visible", val.length > 0);
+      }
+
+      async function doSearch() {
+        const q = document.getElementById("search-input").value.trim();
+        if (!q) {
+          clearSearch();
+          return;
+        }
+        searchQuery = q;
+        searchMode = true;
+        currentPage = 1;
+        // esconde controles de paginação do discover enquanto busca
+        document.getElementById("page-indicator").textContent = "";
+        document.getElementById("btn-prev").disabled = true;
+        document.getElementById("btn-next").disabled = true;
+        const container = document.getElementById("movies-container");
+        container.innerHTML = renderSkeletons(10);
+        try {
+          const data = await api(
+            `/movie/search/${encodeURIComponent(q)}?page=${currentPage}`,
+          );
+          totalPages = data.totalPages || 1;
+          document.getElementById("page-indicator").textContent =
+            `Página ${data.page} de ${data.totalPages}`;
+          document.getElementById("btn-prev").disabled = currentPage <= 1;
+          document.getElementById("btn-next").disabled =
+            currentPage >= totalPages;
+          container.innerHTML = renderMovies(data.results || [], "discover");
+          if (!data.results.length) {
+            container.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>Nenhum filme encontrado para "<strong>${q}</strong>".</div>`;
+          }
+        } catch (e) {
+          container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div>Erro ao buscar filmes.</div>`;
+          toast("Erro na busca", "error");
+        }
+      }
+
+      function clearSearch() {
+        searchMode = false;
+        searchQuery = "";
+        document.getElementById("search-input").value = "";
+        document.getElementById("search-clear").classList.remove("visible");
+        currentPage = 1;
+        loadMovies();
+      }
+
+      // ── ADD TO LIST ──────────────────────────────────────────
+
+      let atlMovieId = null;
+
+      async function openAtlModal(movieId, movieTitle) {
+        atlMovieId = movieId;
+        document.getElementById("atl-movie-label").textContent =
+          `Adicionar "${movieTitle}" a:`;
+        document.getElementById("atl-list").innerHTML =
+          '<div class="spinner" style="margin:1.5rem auto;width:24px;height:24px;border-width:2px"></div>';
+        document.getElementById("atl-modal").classList.add("open");
+        try {
+          const lists = await api("/watch-list/listAll");
+          if (!lists.length) {
+            document.getElementById("atl-list").innerHTML =
+              '<div class="atl-empty">Você ainda não tem nenhuma lista.<br>Crie uma em "Minhas Listas".</div>';
+            return;
+          }
+          document.getElementById("atl-list").innerHTML = lists
+            .map(
+              (wl) => `
+      <div class="atl-item" onclick="addMovieToList('${wl.id}', '${wl.name.replace(/'/g, "\\'")}')">
+        <div>
+          <div class="atl-item-name">${wl.name}</div>
+          <div class="atl-item-meta">${new Date(wl.createdAt).toLocaleDateString("pt-BR")}</div>
+        </div>
+        <span style="color:var(--accent);font-size:1.1rem">+</span>
+      </div>
+    `,
+            )
+            .join("");
+        } catch (e) {
+          document.getElementById("atl-list").innerHTML =
+            '<div class="atl-empty">Erro ao carregar listas.</div>';
+        }
+      }
+
+      function closeAtlModal() {
+        document.getElementById("atl-modal").classList.remove("open");
+        atlMovieId = null;
+      }
+
+      async function addMovieToList(watchListId, watchListName) {
+        try {
+          await api("/watch-list-movie/add", {
+            method: "POST",
+            body: JSON.stringify({ watchListId, tmdbMovieId: atlMovieId }),
+          });
+          closeAtlModal();
+          toast(`Adicionado a "${watchListName}"!`);
+        } catch (e) {
+          toast("Erro ao adicionar à lista.", "error");
+        }
+      }
+
+      document
+        .getElementById("atl-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeAtlModal();
+        });
+
+      // ── REMOVE FROM LIST ─────────────────────────────────────
+
+      async function removeMovieFromList(wlmId, movieId, watchListId) {
+        try {
+          await api(
+            `/watch-list-movie/watchListMovieId/${wlmId}/movieId/${movieId}`,
+            { method: "DELETE" },
+          );
+          toast("Filme removido da lista.");
+          openWatchlistDetail(watchListId);
+        } catch (e) {
+          toast("Erro ao remover filme.", "error");
+        }
+      }
+
+      // ── RATING ──────────────────────────────────────────────
+
+      let ratingMovieId = null;
+      let ratingScore = 0;
+      let ratingExistingId = null;
+      let ratingMode = "create"; // 'create' | 'edit'
+
+      async function loadInlineRating(movieId) {
+        const block = document.getElementById("rating-inline-block");
+        if (!block) return;
+        try {
+          const rating = await api(`/rating/getByMovie/${movieId}`);
+          if (rating) {
+            const stars = "★".repeat(Math.round(rating.score / 2));
+            block.innerHTML = `
+        <div class="rating-existing">
+          <div class="rating-existing-score">
+            <span>${rating.score}</span>
+            <span style="font-family:'DM Sans';font-size:0.8rem;color:var(--muted)">/10</span>
+            <span style="font-size:1rem;color:var(--accent);margin-left:0.25rem">★</span>
+          </div>
+          ${rating.comment ? `<div class="rating-existing-comment">"${rating.comment}"</div>` : ""}
+          <div class="rating-existing-meta">Avaliado em ${new Date(rating.createdAt).toLocaleDateString("pt-BR")}</div>
+          <div class="rating-edit-actions">
+            <button class="btn btn-ghost btn-sm" onclick="openRatingModal(${movieId}, null, true)">✏️ Editar</button>
+            <button class="btn btn-sm" style="background:rgba(232,92,74,0.15);border:1px solid rgba(232,92,74,0.3);color:var(--red)" onclick="deleteRatingInline('${rating.id}', ${movieId})">🗑 Remover</button>
+          </div>
+        </div>
+      `;
+          } else {
+            block.innerHTML = `
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span style="font-size:0.85rem;color:var(--muted)">Você ainda não avaliou este filme.</span>
+          <button class="btn btn-ghost btn-sm" onclick="openRatingModal(${movieId}, null)">★ Avaliar agora</button>
+        </div>
+      `;
+          }
+        } catch (e) {
+          block.innerHTML = `
+      <div style="display:flex;align-items:center;gap:1rem">
+        <span style="font-size:0.85rem;color:var(--muted)">Você ainda não avaliou este filme.</span>
+        <button class="btn btn-ghost btn-sm" onclick="openRatingModal(${movieId}, null)">★ Avaliar agora</button>
+      </div>
+    `;
+        }
+      }
+
+      async function openRatingModal(movieId, movieTitle, isEdit = false) {
+        ratingMovieId = movieId;
+        ratingScore = 0;
+        ratingExistingId = null;
+        ratingMode = "create";
+
+        document.getElementById("rating-movie-label").textContent = movieTitle
+          ? `"${movieTitle}"`
+          : "";
+        document.getElementById("rating-comment").value = "";
+        document.getElementById("rating-score-label").textContent = "—";
+        updateStarUI(0);
+
+        const existingBlock = document.getElementById("rating-existing-block");
+        const formBlock = document.getElementById("rating-form-block");
+
+        if (isEdit) {
+          // Try to load existing rating
+          try {
+            const rating = await api(`/rating/getByMovie/${movieId}`);
+            if (rating) {
+              ratingExistingId = rating.id;
+              ratingMode = "edit";
+              document.getElementById("rating-modal-title").textContent =
+                "Editar Avaliação";
+
+              document.getElementById("re-score").textContent = rating.score;
+              document.getElementById("re-comment").textContent = rating.comment
+                ? `"${rating.comment}"`
+                : "";
+              document.getElementById("re-meta").textContent =
+                `Avaliado em ${new Date(rating.createdAt).toLocaleDateString("pt-BR")}`;
+
+              existingBlock.style.display = "block";
+              formBlock.style.display = "none";
+              document.getElementById("rating-modal").classList.add("open");
+              return;
+            }
+          } catch (e) {}
+        }
+
+        document.getElementById("rating-modal-title").textContent =
+          "Avaliar Filme";
+        existingBlock.style.display = "none";
+        formBlock.style.display = "block";
+        document.getElementById("rating-submit-btn").textContent =
+          ratingMode === "edit" ? "Atualizar avaliação" : "Salvar avaliação";
+        document.getElementById("rating-modal").classList.add("open");
+      }
+
+      function enterEditRating() {
+        // Pre-fill form with existing data shown in modal
+        const scoreText = document.getElementById("re-score").textContent;
+        const commentText = document
+          .getElementById("re-comment")
+          .textContent.replace(/^"|"$/g, "");
+        const scoreVal = parseInt(scoreText) || 0;
+
+        ratingScore = scoreVal;
+        document.getElementById("rating-comment").value = commentText;
+        document.getElementById("rating-score-label").textContent =
+          scoreVal || "—";
+        updateStarUI(scoreVal);
+
+        document.getElementById("rating-existing-block").style.display = "none";
+        document.getElementById("rating-form-block").style.display = "block";
+        document.getElementById("rating-submit-btn").textContent =
+          "Atualizar avaliação";
+        document.getElementById("rating-modal-title").textContent =
+          "Editar Avaliação";
+      }
+
+      function closeRatingModal() {
+        document.getElementById("rating-modal").classList.remove("open");
+        ratingMovieId = null;
+        ratingScore = 0;
+        ratingExistingId = null;
+      }
+
+      function setRatingStar(val) {
+        ratingScore = val;
+        document.getElementById("rating-score-label").textContent = val;
+        updateStarUI(val);
+      }
+
+      function updateStarUI(val) {
+        document.querySelectorAll("#rating-stars .star-btn").forEach((btn) => {
+          const v = parseInt(btn.getAttribute("data-v"));
+          btn.classList.toggle("active", v <= val);
+        });
+      }
+
+      async function submitRating() {
+        if (!ratingScore) {
+          toast("Selecione uma pontuação.", "error");
+          return;
+        }
+        const comment = document.getElementById("rating-comment").value.trim();
+        if (!comment) {
+          toast("Escreva um comentário.", "error");
+          return;
+        }
+
+        try {
+          if (ratingMode === "edit" && ratingExistingId) {
+            await api(`/rating/update/${ratingExistingId}`, {
+              method: "PATCH",
+              body: JSON.stringify({ score: ratingScore, comment }),
+            });
+            toast("Avaliação atualizada!");
+          } else {
+            await api("/rating/crate", {
+              method: "POST",
+              body: JSON.stringify({
+                tmdbMovieId: ratingMovieId,
+                score: ratingScore,
+                comment,
+              }),
+            });
+            toast("Avaliação salva!");
+          }
+          closeRatingModal();
+          loadInlineRating(ratingMovieId);
+        } catch (e) {
+          toast("Erro ao salvar avaliação.", "error");
+        }
+      }
+
+      async function deleteRating() {
+        if (!ratingExistingId) return;
+        try {
+          await api(`/rating/remove/${ratingExistingId}`, { method: "DELETE" });
+          toast("Avaliação removida.");
+          const mid = ratingMovieId;
+          closeRatingModal();
+          loadInlineRating(mid);
+        } catch (e) {
+          toast("Erro ao remover avaliação.", "error");
+        }
+      }
+
+      async function deleteRatingInline(ratingId, movieId) {
+        try {
+          await api(`/rating/remove/${ratingId}`, { method: "DELETE" });
+          toast("Avaliação removida.");
+          loadInlineRating(movieId);
+        } catch (e) {
+          toast("Erro ao remover avaliação.", "error");
+        }
+      }
+
+      document
+        .getElementById("rating-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeRatingModal();
+        });
+
+      // ── SHARED WATCHLISTS ───────────────────────────────────
+
+      async function loadSharedWatchlists() {
+        const c = document.getElementById("shared-container");
+        c.innerHTML = '<div class="spinner"></div>';
+        try {
+          const members = await api("/watch-list-member/shared-with-me");
+          if (!members.length) {
+            c.innerHTML =
+              '<div class="empty"><div class="empty-icon">👥</div>Nenhuma lista foi compartilhada com você ainda.</div>';
+            return;
+          }
+          c.innerHTML =
+            '<div class="wl-grid">' +
+            members
+              .map((m) => {
+                const wl = m.watchList;
+                return `
+        <div class="wl-card" onclick="openWatchlistDetail('${wl.id}')">
+          <div class="wl-cover">
+            ${wl.imageCoverUrl ? `<img src="${wl.imageCoverUrl}" alt="${wl.name.replace(/"/g, "&quot;")}">` : "🎬"}
+          </div>
+          <div class="wl-card-body">
+            <div class="wl-card-name" title="${wl.name.replace(/"/g, "&quot;")}">${wl.name}</div>
+            <div class="wl-card-meta">${new Date(wl.createdAt).toLocaleDateString("pt-BR")}</div>
+            <div class="wl-card-actions">
+              <span class="shared-badge">Compartilhada</span>
+              <button class="btn-icon" onclick="event.stopPropagation(); leaveSharedList('${wl.id}', '${wl.name.replace(/'/g, "\\'")}')">✕ Sair</button>
+            </div>
+          </div>
+        </div>
+      `;
+              })
+              .join("") +
+            "</div>";
+        } catch (e) {
+          c.innerHTML =
+            '<div class="empty"><div class="empty-icon">⚠️</div>Erro ao carregar listas compartilhadas.</div>';
+          toast("Erro ao carregar listas compartilhadas.", "error");
+        }
+      }
+
+      // ── MEMBERS MODAL ────────────────────────────────────────
+
+      let membersModalWatchListId = null;
+      let membersModalIsOwner = false;
+
+      async function openMembersModal(watchListId, watchListName, isOwner) {
+        membersModalWatchListId = watchListId;
+        membersModalIsOwner = isOwner;
+        document.getElementById("members-list-name").textContent =
+          watchListName;
+        document.getElementById("members-add-block").style.display = isOwner
+          ? "block"
+          : "none";
+        document.getElementById("member-email-input").value = "";
+        document.getElementById("members-modal").classList.add("open");
+        await refreshMembersList(watchListId, isOwner);
+      }
+
+      function closeMembersModal() {
+        document.getElementById("members-modal").classList.remove("open");
+        membersModalWatchListId = null;
+      }
+
+      async function refreshMembersList(watchListId, isOwner) {
+        const list = document.getElementById("members-list");
+        list.innerHTML =
+          '<div class="spinner" style="margin:1rem auto;width:24px;height:24px;border-width:2px"></div>';
+
+        try {
+          // Fazemos as duas requisições em paralelo para otimizar o tempo
+          const [wl, members] = await Promise.all([
+            api(`/watch-list/getById/${watchListId}`),
+            api(`/watch-list-member/${watchListId}/members`).catch(() => []),
+          ]);
+
+          let html = "";
+
+          // 1. Renderiza o dono da lista no topo (caso o backend retorne wl.user)
+          if (wl && wl.user) {
+            const isMe = wl.user.id === currentUserId;
+            const clickableClass = isMe ? "" : "clickable";
+            const clickAction = isMe
+              ? ""
+              : `onclick="openExternalProfile('${wl.user.id}', '${wl.user.name || ""}', '${wl.user.email}')"`;
+
+            html += `
+        <div class="member-item ${clickableClass}" ${clickAction} style="border-color: rgba(255,255,255,0.15)">
+          <div class="member-info">
+            <div class="member-avatar" style="background: var(--surface2); color: var(--text); border: 1px solid var(--border)">
+              ${wl.user.name ? wl.user.name[0].toUpperCase() : "?"}
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:0.5rem">
+                <div class="member-name">${wl.user.name || "—"} ${isMe ? "(Você)" : ""}</div>
+                <span class="owner-badge">Dono</span>
+              </div>
+              <div class="member-email">${wl.user.email}</div>
+              <div class="member-since">Criou a lista em ${new Date(wl.createdAt).toLocaleDateString("pt-BR")}</div>
+            </div>
+          </div>
+        </div>
+      `;
+          }
+
+          // 2. Renderiza os membros convidados logo abaixo
+          if (members && members.length > 0) {
+            html += members
+              .map((m) => {
+                const isMe = m.user.id === currentUserId;
+                const clickableClass = isMe ? "" : "clickable";
+                const clickAction = isMe
+                  ? ""
+                  : `onclick="openExternalProfile('${m.user.id}', '${m.user.name || ""}', '${m.user.email}')"`;
+
+                return `
+          <div class="member-item ${clickableClass}" ${clickAction}>
+            <div class="member-info">
+              <div class="member-avatar">${m.user.name ? m.user.name[0].toUpperCase() : "?"}</div>
+              <div>
+                <div class="member-name">${m.user.name || "—"} ${isMe ? "(Você)" : ""}</div>
+                <div class="member-email">${m.user.email}</div>
+                <div class="member-since">desde ${new Date(m.createdAt).toLocaleDateString("pt-BR")}</div>
+              </div>
+            </div>
+            ${
+              isOwner && !isMe
+                ? `<button class="btn-icon" style="color:var(--red);border-color:rgba(232,92,74,0.3)" onclick="event.stopPropagation(); removeMemberById('${watchListId}', '${m.user.id}')">✕</button>`
+                : ""
+            }
+          </div>
+        `;
+              })
+              .join("");
+          }
+
+          if (!html) {
+            list.innerHTML =
+              '<div style="font-size:0.85rem;color:var(--muted);text-align:center;padding:1rem 0">Nenhum membro encontrado.</div>';
+          } else {
+            list.innerHTML = html;
+          }
+        } catch (e) {
+          list.innerHTML =
+            '<div style="font-size:0.85rem;color:var(--muted);text-align:center;padding:1rem 0">Erro ao carregar membros.</div>';
+        }
+      }
+
+      async function submitAddMember() {
+        const email = document
+          .getElementById("member-email-input")
+          .value.trim();
+        if (!email) {
+          toast("Informe o e-mail do usuário.", "error");
+          return;
+        }
+        try {
+          await api(`/watch-list-member/${membersModalWatchListId}/add`, {
+            method: "POST",
+            body: JSON.stringify({ email }),
+          });
+          document.getElementById("member-email-input").value = "";
+          toast("Membro adicionado!");
+          await refreshMembersList(
+            membersModalWatchListId,
+            membersModalIsOwner,
+          );
+        } catch (e) {
+          toast("Erro ao adicionar membro.", "error");
+        }
+      }
+
+      async function removeMemberById(watchListId, memberUserId) {
+        try {
+          await api(
+            `/watch-list-member/${watchListId}/remove/${memberUserId}`,
+            { method: "DELETE" },
+          );
+          toast("Membro removido.");
+          await refreshMembersList(watchListId, membersModalIsOwner);
+        } catch (e) {
+          toast("Erro ao remover membro.", "error");
+        }
+      }
+
+      async function leaveSharedList(watchListId, watchListName) {
+        if (!confirm(`Sair da lista "${watchListName}"?`)) return;
+        try {
+          const user = await api("/user/me");
+          await api(`/watch-list-member/${watchListId}/remove/${user.id}`, {
+            method: "DELETE",
+          });
+          toast("Você saiu da lista.");
+          loadSharedWatchlists();
+        } catch (e) {
+          toast("Erro ao sair da lista.", "error");
+        }
+      }
+
+      document
+        .getElementById("members-modal")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeMembersModal();
+        });
+
+      // ── EXTERNAL PROFILE ─────────────────────────────────────
+
+      async function openExternalProfile(userId, name, email) {
+        closeMembersModal();
+        showPage("external-profile");
+
+        // Popular cabeçalho
+        document.getElementById("ext-profile-name").textContent =
+          name || "Usuário";
+        document.getElementById("ext-profile-email").textContent = email || "—";
+        document.getElementById("ext-profile-avatar").textContent = name
+          ? name[0].toUpperCase()
+          : "?";
+
+        const container = document.getElementById("ext-profile-ratings");
+        container.innerHTML = '<div class="spinner"></div>';
+
+        try {
+          const ratings = await api(`/rating/user/${userId}`);
+
+          if (!ratings || ratings.length === 0) {
+            container.innerHTML =
+              '<div class="empty"><div class="empty-icon">⭐</div>Este usuário ainda não avaliou nenhum filme.</div>';
+            return;
+          }
+
+          container.innerHTML = ratings
+            .map((r) => {
+              // Ajuste o r.movie.title de acordo com a resposta exata do seu backend.
+              // Se ele só retornar o ID, você pode exibir 'Filme ID: ' + r.tmdbMovieId temporariamente.
+              const movieTitle =
+                r.movie && r.movie.title
+                  ? r.movie.title
+                  : `Filme ID: ${r.tmdbMovieId}`;
+
+              return `
+        <div class="ext-rating-card" onclick="openMovieDetail(${r.tmdbMovieId}, 'external-profile')">
+          <div class="ext-rating-header">
+            <div class="ext-rating-movie">🎬 ${movieTitle}</div>
+            <div class="ext-rating-score">★ ${r.score} <span style="font-size:0.8rem; font-family:'DM Sans'; color:var(--muted)">/10</span></div>
+          </div>
+          ${r.comment ? `<div class="ext-rating-comment">"${r.comment}"</div>` : ""}
+          <div style="font-size:0.72rem; color:var(--muted); margin-top:0.5rem">
+            Avaliado em ${new Date(r.createdAt).toLocaleDateString("pt-BR")}
+          </div>
+        </div>
+      `;
+            })
+            .join("");
+        } catch (e) {
+          if (e.message.includes("403") || e.message.includes("Forbidden")) {
+            container.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">🔒</div>
+          Sem permissão.<br>
+          <span style="font-size: 0.8rem">Você só pode ver avaliações de usuários com quem compartilha uma watchlist.</span>
+        </div>`;
+            toast("Acesso negado", "error");
+          } else {
+            container.innerHTML =
+              '<div class="empty"><div class="empty-icon">⚠️</div>Erro ao carregar avaliações do usuário.</div>';
+            toast("Erro ao carregar perfil", "error");
+          }
+        }
+      }
+
+      function goBackFromExternalProfile() {
+        // Retorna para a página de detalhes da watchlist de onde o modal de membros foi aberto
+        showPage("watchlist-detail");
+      }
+
+      // ── AUTH ────────────────────────────────────────────────
+
+      function logout() {
+        localStorage.removeItem("cinnapom_token");
+        token = "";
+        document.getElementById("nav-right").innerHTML = "";
+        showPage("login");
+        toast("Você saiu da conta.");
+      }
+
+      // Pega token da URL se vier do redirect do Google
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get("token");
+      if (urlToken) {
+        token = urlToken;
+        localStorage.setItem("cinnapom_token", token);
+        window.history.replaceState({}, "", window.location.pathname);
+        loadUser()
+          .then(() => {
+            showPage("discover");
+            loadMovies();
+            toast("Login com Google realizado!");
+          })
+          .catch(() => {
+            token = "";
+            localStorage.removeItem("cinnapom_token");
+            toast("Erro ao autenticar com Google.", "error");
+          });
+      } else if (token) {
+        loadUser()
+          .then(() => {
+            showPage("discover");
+            loadMovies();
+          })
+          .catch(() => {
+            token = "";
+            localStorage.removeItem("cinnapom_token");
+          });
+      }
+    </script>
+  </body>
+</html>
