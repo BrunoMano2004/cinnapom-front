@@ -14,6 +14,7 @@ import { AddToListModal } from './components/AddToListModal';
 import { RatingModal } from './components/RatingModal';
 import { RenameModal } from './components/RenameModal';
 import { MembersModal } from './components/MembersModal';
+import { MovieDetail } from './pages/MovieDetail';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -44,6 +45,14 @@ function AppRoutes() {
           element={
             <PrivateRoute>
               <Watchlist />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/movie/:id"
+          element={
+            <PrivateRoute>
+              <MovieDetail />
             </PrivateRoute>
           }
         />
