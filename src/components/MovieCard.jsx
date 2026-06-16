@@ -1,5 +1,4 @@
-export function MovieCard({ movie, onClick }) {
-  // Tratamento de dados igual ao seu Vanilla JS
+export function MovieCard({ movie, onClick, onRemove }) {
   const poster = movie.posterPath ? `https://image.tmdb.org/t/p/w342${movie.posterPath}` : null;
   const year = movie.releaseDate ? movie.releaseDate.slice(0, 4) : '—';
   const score = movie.voteAverage ? movie.voteAverage.toFixed(1) : '—';
@@ -7,6 +6,18 @@ export function MovieCard({ movie, onClick }) {
 
   return (
     <div className="movie-card" onClick={() => onClick(movie.id)}>
+      {/* Botão de remoção condicional */}
+      {onRemove && movie.watchListMovieId && (
+        <button
+          className="btn-remove"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove(movie.watchListMovieId, movie.id);
+          }}
+        >
+          ✕ Remover
+        </button>
+      )}
       <div className="poster-wrap">
         {poster ? (
           <img src={poster} alt={movie.title} loading="lazy" />

@@ -2,11 +2,15 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useFetch } from '../hooks/useFetch';
 import { MovieCard } from '../components/MovieCard';
 import { useModal } from '../contexts/ModalContext';
+import { api } from '../services/api';
+import { useToast } from '../contexts/ToastContext';
 
 export function WatchlistDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { openMembersModal } = useModal();
+
+  const { showToast } = useToast();
 
   const { data: watchlist, loading, error, refetch } = useFetch(`/watch-list/getById/${id}`);
 
@@ -32,8 +36,6 @@ export function WatchlistDetail() {
     );
   }
 
-  // Mapear os filmes da watchlist para o formato que o MovieCard espera
-  // O backend devolve "movies" e também "watchListMovies" com os IDs de relação
   const movies = (watchlist.movies || []).map((movie) => {
     const relation = (watchlist.watchListMovies || []).find((w) => w.tmdbMovieId === movie.id);
     return { ...movie, watchListMovieId: relation ? relation.id : null };
@@ -43,12 +45,19 @@ export function WatchlistDetail() {
     navigate(`/movie/${movieId}?from=watchlist-detail&listId=${id}`);
   };
 
-  const handleRemoveMovie = async (watchListMovieId, movieId, listId) => {
-    // Aqui podes adicionar a chamada à API para remover o filme da lista
-    // await api(`/watch-list-movie/watchListMovieId/${watchListMovieId}/movieId/${movieId}`, { method: 'DELETE' });
-    // showToast("Filme removido.");
-    // refetch();
-    console.log('Remover filme', watchListMovieId);
+  const handleRemoveMovie = async (watchListMovieId, movieId) => {
+    if (!window.confirm('Deseja realmente remover este filme da lista?')) return;
+
+    try {
+      await api(`/watch-list-movie/watchListMovieId/${watchListMovieId}/movieId/${movieId}`, { 
+        method: 'DELETE' 
+      });
+      showToast("Filme removido da lista.");
+      refetch();
+    } catch (e) {
+      showToast("Erro ao remover o filme.", "error");
+      console.error(e);
+    }
   };
 
   return (
