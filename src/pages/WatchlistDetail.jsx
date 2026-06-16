@@ -5,10 +5,11 @@ import { useModal } from '../contexts/ModalContext';
 import { api } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 
+
 export function WatchlistDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { openMembersModal } = useModal();
+  const { openMembersModal, openConfirmModal } = useModal();
 
   const { showToast } = useToast();
 
@@ -45,19 +46,42 @@ export function WatchlistDetail() {
     navigate(`/movie/${movieId}?from=watchlist-detail&listId=${id}`);
   };
 
-  const handleRemoveMovie = async (watchListMovieId, movieId) => {
-    if (!window.confirm('Deseja realmente remover este filme da lista?')) return;
+  const handleRemoveMovie = (watchListId, movieId) => {
+    openConfirmModal({
+      title: 'Remover Filme',
+      message: 'Deseja realmente remover este filme da sua lista?',
+      confirmText: 'Remover',
+      isDanger: true,
+      onConfirm: async () => {
+        try {
+          await api(`/watch-list-movie/watchListId/${watchListId}/movieId/${movieId}`, { method: 'DELETE' });
+          showToast("Filme removido da lista.");
+          refetch();
+        } catch (e) {
+          showToast("Erro ao remover o filme.", "error");
+          console.error(e);
+        }
+      }
+    });
+  };
 
-    try {
-      await api(`/watch-list-movie/watchListMovieId/${watchListMovieId}/movieId/${movieId}`, { 
-        method: 'DELETE' 
-      });
-      showToast("Filme removido da lista.");
-      refetch();
-    } catch (e) {
-      showToast("Erro ao remover o filme.", "error");
-      console.error(e);
-    }
+  const handleDeleteWatchlist = () => {
+    openConfirmModal({
+      title: 'Deletar Watchlist',
+      message: 'Tem certeza que deseja apagar esta lista inteira? Esta ação é irreversível.',
+      confirmText: 'Apagar tudo',
+      isDanger: true,
+      onConfirm: async () => {
+        try {
+          await api(`/watch-list/watchListId/${id}`, { method: 'DELETE' });
+          showToast('Watchlist deletada com sucesso!');
+          navigate('/watchlist');
+        } catch (e) {
+          showToast('Erro ao deletar watchlist.', 'error');
+          console.error(e);
+        }
+      }
+    });
   };
 
   return (
@@ -88,6 +112,14 @@ export function WatchlistDetail() {
               onClick={() => openMembersModal(id, watchlist.name, true)}
             >
               👥 Gerir membros
+            </button>
+            {/* Novo botão de excluir lista */}
+            <button
+              className="btn btn-ghost btn-sm"
+              style={{ color: 'var(--red)', borderColor: 'rgba(232, 92, 74, 0.3)' }}
+              onClick={handleDeleteWatchlist}
+            >
+              🗑️ Apagar Lista
             </button>
           </div>
         </div>

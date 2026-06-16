@@ -15,6 +15,7 @@ import { RatingModal } from './components/RatingModal';
 import { RenameModal } from './components/RenameModal';
 import { MembersModal } from './components/MembersModal';
 import { MovieDetail } from './pages/MovieDetail';
+import { ConfirmModal } from './components/ConfirmModal';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -109,6 +110,9 @@ export default function App() {
             <RatingModal />
             <RenameModal />
             <MembersModal />
+
+            {/* Adicione o ConfirmModal aqui 👇 */}
+            <ConfirmModal />
           </ModalProvider>
         </AuthProvider>
       </ToastProvider>

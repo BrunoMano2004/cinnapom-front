@@ -1,4 +1,4 @@
-export function MovieCard({ movie, onClick, onRemove }) {
+export function MovieCard({ movie, onClick, onRemove, watchListId }) {
   const poster = movie.posterPath ? `https://image.tmdb.org/t/p/w342${movie.posterPath}` : null;
   const year = movie.releaseDate ? movie.releaseDate.slice(0, 4) : '—';
   const score = movie.voteAverage ? movie.voteAverage.toFixed(1) : '—';
@@ -6,18 +6,20 @@ export function MovieCard({ movie, onClick, onRemove }) {
 
   return (
     <div className="movie-card" onClick={() => onClick(movie.id)}>
-      {/* Botão de remoção condicional */}
-      {onRemove && movie.watchListMovieId && (
+      
+      {/* 2. Troque 'movie.watchListMovieId' pelo seu novo 'watchListId' */}
+      {onRemove && watchListId && (
         <button
           className="btn-remove"
           onClick={(e) => {
             e.stopPropagation();
-            onRemove(movie.watchListMovieId, movie.id);
+            onRemove(watchListId, movie.id);
           }}
         >
           ✕ Remover
         </button>
       )}
+      
       <div className="poster-wrap">
         {poster ? (
           <img src={poster} alt={movie.title} loading="lazy" />

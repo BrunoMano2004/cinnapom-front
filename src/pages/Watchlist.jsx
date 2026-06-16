@@ -6,10 +6,11 @@ import { useToast } from '../contexts/ToastContext';
 import { PageTabs } from '../components/PageTabs';
 import { useModal } from '../contexts/ModalContext';
 
+
 export function Watchlist() {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { openRenameModal, openMembersModal } = useModal();
+  const { openRenameModal, openMembersModal, openConfirmModal } = useModal();
 
   // Estado para controlar se o formulário está aberto
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -50,6 +51,25 @@ export function Watchlist() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleDeleteWatchlist = (id, name) => {
+    openConfirmModal({
+      title: 'Excluir Watchlist',
+      message: `Tem certeza que deseja deletar a lista "${name}"? Todos os filmes salvos nela serão removidos permanentemente.`,
+      confirmText: 'Sim, excluir',
+      isDanger: true,
+      onConfirm: async () => {
+        try {
+          await api(`/watch-list/watchListId/${id}`, { method: 'DELETE' });
+          showToast('Watchlist deletada com sucesso!');
+          refetch();
+        } catch (e) {
+          showToast('Erro ao deletar watchlist.', 'error');
+          console.error(e);
+        }
+      }
+    });
   };
 
   return (
@@ -147,6 +167,17 @@ export function Watchlist() {
                     }}
                   >
                     👥 Membros
+                  </button>
+                  {/* 2. Adicione o botão de excluir */}
+                  <button
+                    className="btn-icon"
+                    style={{ color: 'var(--red)', borderColor: 'rgba(232, 92, 74, 0.3)' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteWatchlist(wl.id, wl.name);
+                    }}
+                  >
+                    🗑️ Excluir
                   </button>
                 </div>
               </div>

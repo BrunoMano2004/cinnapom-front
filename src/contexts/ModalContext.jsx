@@ -23,6 +23,14 @@ export const ModalProvider = ({ children }) => {
     watchListName: '',
     isOwner: false,
   });
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    confirmText: 'Confirmar',
+    isDanger: false,
+    onConfirm: null, // A função que será executada!
+  });
 
   // Funções existentes...
   const openAtlModal = (movieId, movieTitle) => setAtlModal({ isOpen: true, movieId, movieTitle });
@@ -44,6 +52,21 @@ export const ModalProvider = ({ children }) => {
   const closeMembersModal = () =>
     setMembersModal({ isOpen: false, watchListId: null, watchListName: '', isOwner: false });
 
+  const openConfirmModal = (options) => {
+    setConfirmModal({
+      isOpen: true,
+      title: options.title || 'Atenção',
+      message: options.message || 'Deseja continuar?',
+      confirmText: options.confirmText || 'Confirmar',
+      isDanger: options.isDanger || false,
+      onConfirm: options.onConfirm || null,
+    });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
+  };
+
   return (
     <ModalContext.Provider
       value={{
@@ -59,6 +82,9 @@ export const ModalProvider = ({ children }) => {
         membersModal,
         openMembersModal,
         closeMembersModal,
+        confirmModal,
+        openConfirmModal,
+        closeConfirmModal
       }}
     >
       {children}
