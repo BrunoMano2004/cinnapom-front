@@ -1,23 +1,25 @@
 import { NavLink } from 'react-router-dom';
 
 export function PageTabs() {
-  // O NavLink injeta automaticamente a variável "isActive"
-  // caso a URL atual do navegador corresponda ao "to" do link.
   const getTabClass = ({ isActive }) => (isActive ? 'tab-btn active' : 'tab-btn');
 
   return (
     <div className="tabs">
       <NavLink to="/discover" className={getTabClass}>
-        Descobrir
+        <span className="tab-icon">🧭</span>
+        <span className="tab-label">Descobrir</span>
       </NavLink>
       <NavLink to="/watchlist" className={getTabClass}>
-        Minhas Listas
+        <span className="tab-icon">🎬</span>
+        <span className="tab-label">Listas</span>
       </NavLink>
       <NavLink to="/shared" className={getTabClass}>
-        Compartilhadas
+        <span className="tab-icon">🤝</span>
+        <span className="tab-label">Compartilhadas</span>
       </NavLink>
       <NavLink to="/profile" className={getTabClass}>
-        Meu Perfil
+        <span className="tab-icon">👤</span>
+        <span className="tab-label">Perfil</span>
       </NavLink>
     </div>
   );

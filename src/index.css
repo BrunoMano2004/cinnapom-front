@@ -1374,3 +1374,213 @@ nav {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
 }
+
+/* =========================================================
+   RESPONSIVIDADE MOBILE (App-like feel)
+   ========================================================= */
+
+/* Desktop - Ícones ocultos por padrão nas abas superiores */
+.tab-icon {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* GERAL E COMPORTAMENTO NATIVO */
+  body {
+    padding-bottom: 75px; /* Espaço para a barra de navegação inferior */
+    overscroll-behavior-y: none; /* Evita o "bounce" do navegador no scroll */
+    -webkit-tap-highlight-color: transparent; /* Remove highlight azul ao clicar */
+  }
+
+  .page {
+    padding: 1.25rem !important; /* Reduz margens em telas pequenas */
+  }
+
+  #page-profile, #page-external-profile, #page-friends {
+    padding: 1.25rem !important;
+  }
+
+  /* NAVBAR SUPERIOR */
+  nav {
+    padding: 0.8rem 1.25rem;
+  }
+  
+  .nav-right {
+    gap: 0.5rem;
+  }
+  
+  /* Ajusta o botão "Amigos" para ser apenas o emoji no mobile */
+  .nav-right button:first-child {
+    font-size: 0; /* Esconde o texto original */
+    padding: 0.2rem;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-right button:first-child::before {
+    content: "👥";
+    font-size: 1.4rem;
+  }
+  
+  /* Esconde o botão "Perfil" superior (já está na barra inferior) */
+  .nav-right button:last-child {
+    display: none;
+  }
+
+  /* Limpa o User Pill, deixando só o avatar */
+  .user-pill {
+    border: none;
+    background: transparent;
+    padding: 0;
+  }
+  .user-name {
+    display: none;
+  }
+
+  /* BOTTOM NAVIGATION (Transformando as Tabs) */
+  .tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(18, 18, 26, 0.85); /* Efeito Blur semelhante ao iOS */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: none;
+    margin: 0;
+    /* Suporte a telas do iPhone com o safe-area (traço embaixo) */
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom)); 
+    z-index: 1000;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .tab-btn {
+    font-size: 0.65rem;
+    padding: 0.3rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none !important;
+    color: var(--muted);
+  }
+
+  .tab-icon {
+    display: block;
+    font-size: 1.4rem;
+    margin-bottom: 3px;
+    transition: transform 0.2s ease;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+  }
+  
+  .tab-btn.active .tab-icon {
+    transform: scale(1.15); /* Ícone cresce um pouco quando selecionado */
+  }
+
+  /* CABEÇALHOS DAS PÁGINAS */
+  .discover-header, .wl-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .discover-title, .wl-title {
+    font-size: 2rem;
+  }
+
+  /* GRID DE FILMES E WATCHLISTS */
+  .movie-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 filmes perfeitos por linha */
+    gap: 0.8rem;
+  }
+  .wl-grid {
+    grid-template-columns: 1fr; /* 1 lista em formato de card largo por linha */
+    gap: 1rem;
+  }
+
+  /* TELA DE LOGIN */
+  .login-split {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  .login-left {
+    padding: 3rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .login-left::after {
+    display: none;
+  }
+  .login-title {
+    font-size: 3.2rem;
+  }
+  .login-right {
+    width: 100%;
+    padding: 2.5rem 1.5rem;
+    flex: 1;
+  }
+
+  /* FILTROS DA TELA DE DESCOBRIR */
+  .filters-container > div {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 0.75rem !important;
+  }
+  .filters-container > div > div {
+    width: 100% !important; /* Dropdowns ocupam a largura total da tela */
+  }
+
+  /* TELA DE DETALHES DO FILME */
+  .movie-detail-hero {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  .movie-detail-poster {
+    width: 120px;
+    margin-top: -60px; /* Poster sobrepõe levemente a capa de fundo */
+    border-radius: 8px;
+  }
+  .movie-detail-meta-row, .movie-detail-info > div:last-child {
+    justify-content: center;
+  }
+  .movie-detail-body {
+    padding: 1.5rem;
+  }
+  .detail-stats {
+    grid-template-columns: 1fr 1fr; /* 2 colunas para Orçamento, Duração, etc */
+  }
+
+  /* MODAIS E NOTIFICAÇÕES (Toasts) */
+  .modal {
+    width: 90%;
+    padding: 1.5rem;
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  .toast {
+    bottom: 90px; /* Notificação acima da barra de navegação inferior */
+    left: 1.5rem;
+    right: 1.5rem;
+    width: auto;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+}
+
+/* Telas muito pequenas (iPhone SE) */
+@media (max-width: 380px) {
+  .movie-detail-title {
+    font-size: 2.2rem;
+  }
+}
