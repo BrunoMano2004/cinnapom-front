@@ -16,6 +16,7 @@ import { RenameModal } from './components/RenameModal';
 import { MembersModal } from './components/MembersModal';
 import { MovieDetail } from './pages/MovieDetail';
 import { ConfirmModal } from './components/ConfirmModal';
+import { Friends } from './pages/Friends';
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -89,6 +90,13 @@ function AppRoutes() {
             </PrivateRoute>
           }
         />
+        <Route 
+          path="/friends" 
+          element={
+            <PrivateRoute>
+              <Friends />
+            </PrivateRoute>
+}       />
         <Route path="*" element={<Navigate to={user ? '/discover' : '/login'} replace />} />
       </Routes>
     </>

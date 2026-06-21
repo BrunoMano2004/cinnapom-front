@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useModal } from '../contexts/ModalContext';
 import { useFetch } from '../hooks/useFetch';
 import { api } from '../services/api';
@@ -10,10 +9,9 @@ export function MembersModal() {
   const { membersModal, closeMembersModal } = useModal();
   const { showToast } = useToast();
   const { user: currentUser } = useAuth();
-  const [emailInput, setEmailInput] = useState('');
   const navigate = useNavigate();
 
-  // Busca os dados da lista e os membros
+  // Busca os dados da lista e os membros atuais
   const { data: wl, loading: loadingWl } = useFetch(
     membersModal.isOpen ? `/watch-list/getById/${membersModal.watchListId}` : null,
   );
@@ -25,16 +23,24 @@ export function MembersModal() {
     membersModal.isOpen ? `/watch-list-member/${membersModal.watchListId}/members` : null,
   );
 
+  // Busca as amizades do usuário logado
+  const { data: friendshipData, loading: friendsLoading } = useFetch(
+    membersModal.isOpen ? '/friendship' : null
+  );
+
+  // Filtra as amizades para mostrar apenas as que já foram aceitas
+  const friendsList = friendshipData?.friends?.filter(f => f.status === 'ACCEPTED') || [];
+
   if (!membersModal.isOpen) return null;
 
-  const handleAddMember = async () => {
-    if (!emailInput.trim()) return showToast('Informe o e-mail do utilizador.', 'error');
+  // Função para adicionar o membro recebendo diretamente o friendId
+  const handleAddMember = async (friendId) => {
     try {
       await api(`/watch-list-member/${membersModal.watchListId}/add`, {
         method: 'POST',
-        body: JSON.stringify({ email: emailInput.trim() }),
+        body: JSON.stringify({ friendId }),
       });
-      setEmailInput('');
+      
       showToast('Membro adicionado!');
       refetchMembers();
     } catch (e) {
@@ -55,6 +61,11 @@ export function MembersModal() {
   };
 
   const isLoading = loadingWl || loadingMembers;
+
+  // Verifica quais amigos da lista ainda não foram adicionados nesta watchlist
+  const availableFriends = friendsList.filter(friend => 
+    !(members || []).some(m => m.user.id === friend.friendId)
+  );
 
   return (
     <div
@@ -104,7 +115,7 @@ export function MembersModal() {
                 </div>
               )}
 
-              {/* Os Convidados */}
+              {/* Os Convidados (Membros Adicionados) */}
               {(members || []).map((m) => (
                 <div
                   key={m.id}
@@ -112,7 +123,6 @@ export function MembersModal() {
                   onClick={() => {
                     if (m.user.id !== currentUser?.id) {
                       closeMembersModal();
-                      // Aqui passamos o ID na URL, mas o name e email escondidos no state!
                       navigate(`/profile/${m.user.id}`, {
                         state: { name: m.user.name, email: m.user.email },
                       });
@@ -134,7 +144,10 @@ export function MembersModal() {
                     <button
                       className="btn-icon"
                       style={{ color: 'var(--red)', borderColor: 'rgba(232,92,74,0.3)' }}
-                      onClick={() => handleRemoveMember(m.user.id)}
+                      onClick={(e) => {
+                        e.stopPropagation(); // Evita navegar para o perfil ao clicar em remover
+                        handleRemoveMember(m.user.id);
+                      }}
                     >
                       ✕
                     </button>
@@ -158,6 +171,7 @@ export function MembersModal() {
           )}
         </div>
 
+        {/* --- Seção de Adicionar Membro --- */}
         {membersModal.isOwner && (
           <div
             style={{
@@ -170,29 +184,73 @@ export function MembersModal() {
               style={{
                 fontSize: '0.75rem',
                 color: 'var(--muted)',
-                marginBottom: '0.5rem',
+                marginBottom: '0.75rem',
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
               }}
             >
-              Adicionar membro
+              Adicionar amigo
             </div>
-            <div style={{ display: 'flex', gap: '0.6rem' }}>
-              <input
-                className="form-input"
-                placeholder="E-mail do utilizador"
-                style={{ flex: 1 }}
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-              />
-              <button className="btn btn-primary btn-sm" onClick={handleAddMember}>
-                Adicionar
-              </button>
-            </div>
+
+            {friendsLoading ? (
+              <div className="spinner" style={{ width: '24px', height: '24px', margin: '0.5rem auto', borderWidth: '2px' }}></div>
+            ) : friendsList.length === 0 ? (
+              <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Você ainda não tem amigos adicionados.</p>
+            ) : availableFriends.length === 0 ? (
+              <p style={{ color: 'var(--muted)', fontSize: '0.85rem' }}>Todos os seus amigos já estão nesta lista.</p>
+            ) : (
+              <div 
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '0.5rem', 
+                  maxHeight: '160px', 
+                  overflowY: 'auto',
+                  paddingRight: '0.25rem'
+                }}
+              >
+                {availableFriends.map(friend => (
+                  <div 
+                    key={friend.friendshipId} 
+                    className="member-item" 
+                    style={{ 
+                      padding: '0.5rem 0.75rem', 
+                      borderRadius: '6px', 
+                      background: 'var(--surface2)',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <div className="member-info">
+                      <div className="member-avatar" style={{ width: '32px', height: '32px', fontSize: '0.9rem' }}>
+                        {friend.username ? friend.username[0].toUpperCase() : '?'}
+                      </div>
+                      <div>
+                        <div className="member-name" style={{ fontSize: '0.85rem' }}>
+                          {friend.username || '—'}
+                        </div>
+                        <div className="member-email" style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                          {friend.userEmail}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      type="button" 
+                      className="btn btn-primary btn-sm" 
+                      style={{ padding: '0.25rem 0.6rem', fontSize: '0.75rem', height: 'auto' }}
+                      onClick={() => handleAddMember(friend.friendId)}
+                    >
+                      Adicionar
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        <div className="modal-actions">
+        <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
           <button className="btn btn-ghost btn-sm" onClick={closeMembersModal}>
             Fechar
           </button>

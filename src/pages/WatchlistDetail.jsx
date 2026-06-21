@@ -5,7 +5,6 @@ import { useModal } from '../contexts/ModalContext';
 import { api } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 
-
 export function WatchlistDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -67,17 +66,17 @@ export function WatchlistDetail() {
 
   const handleDeleteWatchlist = () => {
     openConfirmModal({
-      title: 'Deletar Watchlist',
-      message: 'Tem certeza que deseja apagar esta lista inteira? Esta ação é irreversível.',
-      confirmText: 'Apagar tudo',
+      title: 'Excluir Watchlist',
+      message: 'Tem certeza que deseja excluir esta lista inteira? Esta ação é irreversível.',
+      confirmText: 'Excluir tudo',
       isDanger: true,
       onConfirm: async () => {
         try {
           await api(`/watch-list/watchListId/${id}`, { method: 'DELETE' });
-          showToast('Watchlist deletada com sucesso!');
+          showToast('Lista excluída com sucesso!');
           navigate('/watchlist');
         } catch (e) {
-          showToast('Erro ao deletar watchlist.', 'error');
+          showToast('Erro ao excluir lista.', 'error');
           console.error(e);
         }
       }
@@ -102,7 +101,7 @@ export function WatchlistDetail() {
         <div style={{ flex: 1 }}>
           <div className="wl-detail-title">{watchlist.name}</div>
           <div className="wl-detail-meta">
-            Criada em {new Date(watchlist.createdAt).toLocaleDateString('pt-PT')} · {movies.length}{' '}
+            Criada em {new Date(watchlist.createdAt).toLocaleDateString('pt-BR')} · {movies.length}{' '}
             filme(s)
           </div>
 
@@ -111,15 +110,14 @@ export function WatchlistDetail() {
               className="btn btn-ghost btn-sm"
               onClick={() => openMembersModal(id, watchlist.name, true)}
             >
-              👥 Gerir membros
+              👥 Gerenciar membros
             </button>
-            {/* Novo botão de excluir lista */}
             <button
               className="btn btn-ghost btn-sm"
               style={{ color: 'var(--red)', borderColor: 'rgba(232, 92, 74, 0.3)' }}
               onClick={handleDeleteWatchlist}
             >
-              🗑️ Apagar Lista
+              🗑️ Excluir Lista
             </button>
           </div>
         </div>
@@ -136,6 +134,7 @@ export function WatchlistDetail() {
                 watchListId={id}
                 onClick={handleMovieClick}
                 onRemove={handleRemoveMovie}
+                showTooltip={true} // Ativa o balão de Avaliações!
               />
             ))}
           </div>

@@ -739,6 +739,7 @@ nav {
 }
 .wl-card-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
   margin-top: 0.75rem;
 }
@@ -752,6 +753,12 @@ nav {
   cursor: pointer;
   transition: all 0.15s;
   font-family: 'DM Sans', sans-serif;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  white-space: nowrap;
 }
 .btn-icon:hover {
   color: var(--text);
@@ -1348,4 +1355,22 @@ nav {
   color: var(--muted);
   font-style: italic;
   line-height: 1.5;
+}
+
+/* Custom Scrollbar for Dropdowns and tight areas */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }

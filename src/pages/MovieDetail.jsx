@@ -7,8 +7,11 @@ export function MovieDetail() {
   const navigate = useNavigate();
   const { openAtlModal, openRatingModal } = useModal();
 
-  // 1. Agora o `data` contém a estrutura { movie, providers }
+  // Busca os detalhes principais do filme e onde assistir
   const { data, loading, error } = useFetch(`/movie/details/${id}`);
+  
+  // Busca as avaliações suas e de seus amigos para este filme
+  const { data: friendsRatings, loading: loadingRatings } = useFetch(`/rating/movie/${id}/friends`);
 
   if (loading) {
     return (
@@ -18,7 +21,6 @@ export function MovieDetail() {
     );
   }
 
-  // 2. Extraímos o filme e os providers com optional chaining
   const movie = data?.movie;
   const providers = data?.providers;
 
@@ -135,13 +137,10 @@ export function MovieDetail() {
           </div>
         )}
 
-        {/* 3. Nova Seção: Onde Assistir (Providers) */}
         {providers && (providers.flatrate || providers.rent || providers.buy || providers.ads) && (
           <div className="detail-section">
             <div className="detail-section-title">Onde Assistir</div>
             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-              
-              {/* Streaming (Flatrate) */}
               {providers.flatrate?.length > 0 && (
                 <div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>Stream</div>
@@ -158,8 +157,6 @@ export function MovieDetail() {
                   </div>
                 </div>
               )}
-
-              {/* Aluguel (Rent) */}
               {providers.rent?.length > 0 && (
                 <div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>Alugar</div>
@@ -176,8 +173,6 @@ export function MovieDetail() {
                   </div>
                 </div>
               )}
-
-              {/* Compra (Buy) */}
               {providers.buy?.length > 0 && (
                 <div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>Comprar</div>
@@ -195,8 +190,6 @@ export function MovieDetail() {
                 </div>
               )}
             </div>
-
-            {/* Link oficial do JustWatch fornecido pelo TMDB */}
             {providers.link && (
               <div style={{ marginTop: '1rem' }}>
                 <a 
@@ -205,7 +198,7 @@ export function MovieDetail() {
                   rel="noreferrer" 
                   style={{ fontSize: '0.85rem', color: 'var(--primary)', textDecoration: 'none' }}
                 >
-                  Ver mais detalhes no TMDB / JustWatch ↗
+                  Ver mais detalhes no JustWatch ↗
                 </a>
               </div>
             )}
@@ -258,6 +251,76 @@ export function MovieDetail() {
             </p>
           </div>
         )}
+
+        {/* --- Seção de Avaliações --- */}
+        <div className="detail-section">
+          <div className="detail-section-title">Avaliações (Você e Amigos)</div>
+          
+          {loadingRatings ? (
+            <div className="spinner" style={{ width: '24px', height: '24px', borderWidth: '2px', margin: '1rem 0' }}></div>
+          ) : friendsRatings && friendsRatings.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+              {friendsRatings.map((rating) => (
+                <div 
+                  key={rating.id} 
+                  style={{ 
+                    background: 'var(--surface2)', 
+                    padding: '1rem', 
+                    borderRadius: '8px', 
+                    border: '1px solid var(--border)' 
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                    {/* Exibe a foto do usuário caso ela exista, senão faz fallback para a inicial */}
+                    {rating.user?.avatar ? (
+                      <img 
+                        src={rating.user.avatar} 
+                        alt={rating.user.name || 'Avatar'} 
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} 
+                      />
+                    ) : (
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '50%',
+                        background: 'var(--primary)', color: '#fff',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontWeight: 'bold', flexShrink: 0
+                      }}>
+                        {rating.user?.name ? rating.user.name[0].toUpperCase() : '?'}
+                      </div>
+                    )}
+
+                    <div>
+                      {/* Exibe o formato Nome (e-mail) */}
+                      <div style={{ fontWeight: 600, fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap' }}>
+                        <span>{rating.user?.name || '—'}</span>
+                        {rating.user?.email && (
+                          <span style={{ fontWeight: 400, fontSize: '0.82rem', color: 'var(--muted)' }}>
+                            ({rating.user.email})
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>
+                        {new Date(rating.createdAt).toLocaleDateString('pt-BR')}
+                      </div>
+                    </div>
+                    <div style={{ marginLeft: 'auto', fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem' }}>
+                      ★ {rating.score}
+                    </div>
+                  </div>
+                  {rating.comment && (
+                    <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.4, color: 'var(--text-main)', fontStyle: 'italic', marginTop: '0.5rem' }}>
+                      "{rating.comment}"
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.5rem' }}>
+              Nenhuma avaliação sua ou de seus amigos para este filme ainda.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

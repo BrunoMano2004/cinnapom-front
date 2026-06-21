@@ -4,28 +4,37 @@ import { useAuth } from '../contexts/AuthContext';
 import { api } from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { PageTabs } from '../components/PageTabs';
+import { useModal } from '../contexts/ModalContext'; // <-- Importado o hook do modal
 
 export function Shared() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { openConfirmModal } = useModal(); // <-- Instanciado o modal de confirmação
 
-  // Busca as listas partilhadas com o utilizador
+  // Busca as listas compartilhadas com o usuário
   const { data: members, loading, error, refetch } = useFetch('/watch-list-member/shared-with-me');
 
-  const handleLeaveList = async (watchListId, watchListName) => {
-    if (!window.confirm(`Sair da lista "${watchListName}"?`)) return;
-
-    try {
-      // O endpoint exige o ID da lista e o ID do utilizador que está a sair
-      await api(`/watch-list-member/${watchListId}/remove/${user.id}`, {
-        method: 'DELETE',
-      });
-      showToast('Saíste da lista com sucesso.');
-      refetch(); // Recarrega o ecrã automaticamente
-    } catch (e) {
-      showToast('Erro ao sair da lista.', 'error');
-    }
+  const handleLeaveList = (watchListId, watchListName) => {
+    // Abre o modal moderno em vez do window.confirm
+    openConfirmModal({
+      title: 'Sair da Lista',
+      message: `Tem certeza que deseja sair da lista "${watchListName}"?`,
+      confirmText: 'Sair',
+      isDanger: true,
+      onConfirm: async () => {
+        try {
+          // O endpoint exige o ID da lista e o ID do usuário que está saindo
+          await api(`/watch-list-member/${watchListId}/remove/${user.id}`, {
+            method: 'DELETE',
+          });
+          showToast('Você saiu da lista com sucesso.');
+          refetch(); // Recarrega a tela automaticamente
+        } catch (e) {
+          showToast('Erro ao sair da lista.', 'error');
+        }
+      }
+    });
   };
 
   return (
@@ -71,7 +80,7 @@ export function Shared() {
                     {wl.name}
                   </div>
                   <div className="wl-card-meta">
-                    {new Date(wl.createdAt).toLocaleDateString('pt-PT')}
+                    {new Date(wl.createdAt).toLocaleDateString('pt-BR')} {/* <-- Ajustado para pt-BR */}
                   </div>
                   <div className="wl-card-actions">
                     <span className="shared-badge">Compartilhada</span>
@@ -93,7 +102,7 @@ export function Shared() {
       ) : (
         <div className="empty">
           <div className="empty-icon">👥</div>
-          Nenhuma lista foi compartilhada contigo ainda.
+          Nenhuma lista foi compartilhada com você ainda.
         </div>
       )}
     </div>

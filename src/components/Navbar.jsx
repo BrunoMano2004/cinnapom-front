@@ -5,7 +5,7 @@ export function Navbar() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Se por algum motivo o utilizador não estiver carregado, não mostramos os dados
+  // Se por algum motivo o usuário não estiver carregado, não mostramos os dados
   if (!user) return null;
 
   const initial = user.name ? user.name[0].toUpperCase() : '?';
@@ -18,10 +18,16 @@ export function Navbar() {
       </Link>
 
       <div className="nav-right" id="nav-right">
+        {/* Botão de Amigos estilizado igual ao de Perfil */}
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/friends')}>
+          👥 Amigos
+        </button>
+        
         <div className="user-pill">
           <div className="avatar">{initial}</div>
           <span className="user-name">{displayName}</span>
         </div>
+        
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('/profile')}>
           Perfil
         </button>
