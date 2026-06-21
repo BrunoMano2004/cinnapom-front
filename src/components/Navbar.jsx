@@ -23,10 +23,16 @@ export function Navbar() {
           👥 Amigos
         </button>
         
-        <div className="user-pill">
-          <div className="avatar">{initial}</div>
-          <span className="user-name">{displayName}</span>
-        </div>
+        {user && (
+          <div className="user-pill">
+            <img 
+              src={user.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`} 
+              alt={`Foto de ${user.name}`} 
+              className="user-avatar" 
+            />
+            <span className="user-name">{user.name}</span>
+          </div>
+        )}
         
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('/profile')}>
           Perfil
